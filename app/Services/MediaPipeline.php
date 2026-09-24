@@ -120,7 +120,6 @@ class MediaPipeline
         $uniqueBase = Str::random(40);
         $hasAlpha = self::hasAlphaChannel($sourceGd, $mime);
 
-        $disk = Storage::disk('public');
         $variants = [];
         $subfolder = trim($subfolder, '/\\');
 
@@ -128,13 +127,13 @@ class MediaPipeline
             // Save original master file
             $safeOrigExt = strtolower($originalExt) ?: self::ALLOWED_MIMES[$mime];
             $origFilename = "{$uniqueBase}_orig.{$safeOrigExt}";
-            $disk->put("{$subfolder}/{$origFilename}", file_get_contents($sourcePath));
+            self::saveToStorage($subfolder, $origFilename, file_get_contents($sourcePath));
             $variants['orig'] = $origFilename;
 
             // Generate main WebP (display resolution)
             $mainWebpFilename = "{$uniqueBase}.webp";
             $webpData = self::gdToBlob($displayGd, 'webp', self::WEBP_QUALITY);
-            $disk->put("{$subfolder}/{$mainWebpFilename}", $webpData);
+            self::saveToStorage($subfolder, $mainWebpFilename, $webpData);
             $variants['webp_main'] = $mainWebpFilename;
 
             // Generate AVIF if supported
@@ -142,7 +141,7 @@ class MediaPipeline
                 $mainAvifFilename = "{$uniqueBase}.avif";
                 $avifData = self::gdToBlob($displayGd, 'avif', self::AVIF_QUALITY);
                 if ($avifData !== null) {
-                    $disk->put("{$subfolder}/{$mainAvifFilename}", $avifData);
+                    self::saveToStorage($subfolder, $mainAvifFilename, $avifData);
                     $variants['avif_main'] = $mainAvifFilename;
                 }
             }
@@ -151,11 +150,11 @@ class MediaPipeline
             if ($hasAlpha) {
                 $fallbackFilename = "{$uniqueBase}.png";
                 $pngData = self::gdToBlob($displayGd, 'png');
-                $disk->put("{$subfolder}/{$fallbackFilename}", $pngData);
+                self::saveToStorage($subfolder, $fallbackFilename, $pngData);
             } else {
                 $fallbackFilename = "{$uniqueBase}.jpg";
                 $jpgData = self::gdToBlob($displayGd, 'jpeg', self::JPEG_QUALITY);
-                $disk->put("{$subfolder}/{$fallbackFilename}", $jpgData);
+                self::saveToStorage($subfolder, $fallbackFilename, $jpgData);
             }
             $variants['fallback'] = $fallbackFilename;
 
@@ -166,7 +165,7 @@ class MediaPipeline
                     $varGd = self::resizeImage($sourceGd, $origW, $origH, $varW, $varH);
                     $varWebpName = "{$uniqueBase}_{$sizeKey}.webp";
                     $varData = self::gdToBlob($varGd, 'webp', self::WEBP_QUALITY);
-                    $disk->put("{$subfolder}/{$varWebpName}", $varData);
+                    self::saveToStorage($subfolder, $varWebpName, $varData);
                     $variants[$sizeKey] = $varWebpName;
                     imagedestroy($varGd);
                 } else {
@@ -195,6 +194,25 @@ class MediaPipeline
             'height'   => $displayHeight,
             'filesize' => $storedSize,
         ];
+    }
+
+    /**
+     * Save binary data to both Storage::disk('public') and public/storage directory.
+     */
+    protected static function saveToStorage(string $subfolder, string $filename, string $data): void
+    {
+        $disk = Storage::disk('public');
+        $disk->put("{$subfolder}/{$filename}", $data);
+
+        // Ensure file exists in public/storage if directory is not a symlink
+        $pubDir = public_path("storage/{$subfolder}");
+        if (!is_dir($pubDir)) {
+            @mkdir($pubDir, 0755, true);
+        }
+        $pubPath = "{$pubDir}/{$filename}";
+        if (!file_exists($pubPath) || filesize($pubPath) !== strlen($data)) {
+            @file_put_contents($pubPath, $data);
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ class AdminUploadOptimizationTest extends TestCase
         parent::setUp();
         Storage::fake('public');
         $this->withoutMiddleware();
+        Postgalery::whereIn('nama', ['Batik Parang Kencana', 'Artwork to remove'])->delete();
     }
 
     public function test_postgalery_store_optimizes_image_and_saves_webp()
@@ -54,7 +55,8 @@ class AdminUploadOptimizationTest extends TestCase
             'link'    => 'https://wa.me/test',
         ]);
 
-        $post = Postgalery::latest()->first();
+        $post = Postgalery::where('nama', 'Artwork to remove')->first();
+        $this->assertNotNull($post);
         $base = pathinfo($post->image, PATHINFO_FILENAME);
 
         Storage::disk('public')->assertExists('postsimg/' . $post->image);
