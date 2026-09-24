@@ -5,7 +5,7 @@
         <ul>
           <li><p>Jl. Timoho No.313C, Baciro,<br>Kec. Gondokusuman, Kota Yogyakarta,<br>Daerah Istimewa Yogyakarta 55165</p></li>
           <li><a href="https://instagram.com/kabul.artgallery?igshid=NzZhOTFlYzFmZQ==" target="_blank" rel="noopener noreferrer"><i class="fa fa-instagram"></i> kabulArtGallery</a></li>
-          <li><a href="https://wa.me/6282223242071" target="_blank" rel="noopener noreferrer"><i class="fa fa-whatsapp"></i> 0822 2324 2071</a></li>
+          <li><a href="https://wa.me/6282223242071?text={{ rawurlencode(app()->getLocale() === 'en' ? 'Hello Kabul Art Gallery, I would like to inquire about your art collection and gallery visits.' : 'Halo Kabul Art Gallery, saya ingin bertanya mengenai koleksi lukisan dan kunjungan ke galeri.') }}" target="_blank" rel="noopener noreferrer"><i class="fa fa-whatsapp"></i> 0822 2324 2071</a></li>
           <li><a href="mailto:kabulartmedia@gmail.com"><i class="fa fa-envelope"></i> kabulartmedia@gmail.com</a></li>
         </ul>
       </div>

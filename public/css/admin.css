@@ -644,3 +644,89 @@ button{font-family:inherit;}
   .adm-stats{grid-template-columns:1fr 1fr;}
   .adm-quick-nav{grid-template-columns:1fr;}
 }
+
+/* ── ADMIN LANGUAGE SWITCHER ─────────────────────────────── */
+.adm-lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--clr-border-gold);
+  border-radius: var(--radius-sm);
+  background: var(--clr-warm-white);
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.adm-lang-btn {
+  color: var(--clr-espresso-lt);
+  padding: 0.2rem 0.45rem;
+  border-radius: 2px;
+  transition: all var(--transition);
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1;
+}
+.adm-lang-btn:hover {
+  color: var(--clr-espresso);
+}
+.adm-lang-btn.is-active {
+  color: var(--clr-parchment);
+  background: var(--clr-espresso);
+  font-weight: 700;
+}
+.adm-lang-divider {
+  color: var(--clr-border-gold);
+  user-select: none;
+  font-size: 0.7rem;
+}
+
+/* ── BILINGUAL CMS BADGES & FIELDSETS ────────────────────── */
+.adm-bilingual-box {
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.adm-bilingual-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--clr-border);
+}
+.adm-bilingual-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.adm-bilingual-badge--auto {
+  background: rgba(184, 147, 42, 0.15);
+  color: var(--clr-gold);
+  border: 1px solid rgba(184, 147, 42, 0.3);
+}
+.adm-bilingual-badge--manual {
+  background: rgba(44, 26, 14, 0.08);
+  color: var(--clr-espresso);
+  border: 1px solid var(--clr-border);
+}
+.adm-bilingual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media(max-width: 768px) {
+  .adm-bilingual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

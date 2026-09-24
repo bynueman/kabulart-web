@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login — Kabul Art Gallery</title>
+  <title>{{ __('login.title') }} — Kabul Art Gallery</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
@@ -11,13 +11,21 @@
   <div class="adm-login-page">
     <div class="adm-login-card">
 
-      <div class="adm-login-brand">
-        <img src="{{ asset('img/logokabul.png') }}" alt="Kabul Art Gallery logo">
-        <div>
-          <div class="adm-login-brand__title">Kabul Art Gallery</div>
-          <div class="adm-login-brand__sub">Admin Panel</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <div class="adm-login-brand" style="margin-bottom:0;">
+          <img src="{{ asset('img/logokabul.png') }}" alt="Kabul Art Gallery logo">
+          <div>
+            <div class="adm-login-brand__title">Kabul Art Gallery</div>
+            <div class="adm-login-brand__sub">Admin Panel</div>
+          </div>
+        </div>
+        <div class="adm-lang-switch" role="group" aria-label="Language">
+          <a href="{{ route('locale.switch', 'id') }}" class="adm-lang-btn {{ app()->getLocale() === 'id' ? 'is-active' : '' }}">ID</a>
+          <span class="adm-lang-divider">|</span>
+          <a href="{{ route('locale.switch', 'en') }}" class="adm-lang-btn {{ app()->getLocale() === 'en' ? 'is-active' : '' }}">EN</a>
         </div>
       </div>
+
       <div class="adm-login-divider"></div>
 
       <form action="{{ route('login.action') }}" method="post" autocomplete="off">
@@ -56,7 +64,7 @@
           @enderror
         </div>
 
-        <button type="submit" class="adm-login-submit" id="login-submit">Masuk ke Dashboard</button>
+        <button type="submit" class="adm-login-submit" id="login-submit">{{ __('login.submit') }}</button>
       </form>
 
     </div>

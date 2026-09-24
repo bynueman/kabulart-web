@@ -231,6 +231,7 @@ class AdminUploadOptimizationTest extends TestCase
 
         $post->refresh();
         $this->assertStringEndsWith('.webp', $post->image);
+        $post->delete();
     }
 }
 

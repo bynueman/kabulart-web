@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tambah Karya Gallery — Kabul Art Gallery Admin</title>
+  <title>{{ __('admin.add_gallery_title') }} — Kabul Art Gallery Admin</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
@@ -14,22 +14,7 @@
   <div class="adm-overlay" id="admOverlay"></div>
 
   <div class="adm-main">
-    <div class="adm-topbar">
-      <button class="adm-hamburger" id="admHamburger" aria-label="Toggle sidebar">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div><div class="adm-topbar__title">Gallery</div></div>
-      <div class="adm-topbar__actions">
-        <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          Kembali
-        </a>
-        <a href="/" target="_blank" class="adm-btn adm-btn--ghost adm-btn--sm">Lihat Website</a>
-        <a href="/logout" class="adm-btn adm-btn--sm" style="background:rgba(155,35,53,0.1);color:#9b2335;border:1px solid rgba(155,35,53,0.2);">Logout</a>
-      </div>
-    </div>
+    @include('partials.admin-topbar', ['title' => __('admin.gallery'), 'backUrl' => route('postsgalery.index')])
 
     <div class="adm-content">
 
@@ -48,8 +33,8 @@
 
       <div class="adm-page-header">
         <div>
-          <span class="adm-page-header__eyebrow">Manajemen Gallery</span>
-          <h1 class="adm-page-header__title">Tambah Karya Baru</h1>
+          <span class="adm-page-header__eyebrow">{{ __('admin.gallery') }}</span>
+          <h1 class="adm-page-header__title">{{ __('admin.add_gallery_title') }}</h1>
         </div>
       </div>
 
@@ -59,7 +44,7 @@
 
           {{-- UPLOAD FOTO --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="imageInput">Foto Karya Seni <span style="color:var(--clr-danger)">*</span></label>
+            <label class="adm-form-label" for="imageInput">{{ __('admin.photo_label') }} <span style="color:var(--clr-danger)">*</span></label>
             <div class="adm-upload-zone" id="uploadZone">
               <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif" required>
               <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -68,8 +53,8 @@
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
               <div class="adm-upload-zone__text">
-                <strong>Klik untuk memilih gambar</strong> atau seret file ke sini<br>
-                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP responsif saat disimpan.</small>
+                <strong>{{ __('admin.upload_drag') }}</strong><br>
+                <small style="color:var(--clr-espresso-lt)">{{ __('admin.upload_hint') }}</small>
               </div>
             </div>
 
@@ -88,10 +73,14 @@
             @enderror
           </div>
 
-          {{-- NAMA KARYA --}}
+          {{-- NAMA KARYA (SMART BILINGUAL INPUT) --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="nama">Nama / Judul Karya <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="nama" id="nama" class="adm-form-input @error('nama') is-invalid @enderror" value="{{ old('nama') }}" placeholder="Contoh: Sang Penari Bali" required>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+              <label class="adm-form-label" for="nama" style="margin-bottom:0;">{{ __('admin.name_label') }} <span style="color:var(--clr-danger)">*</span></label>
+              <span style="font-size:0.75rem;color:var(--clr-gold);font-weight:600;">✨ {{ __('admin.auto_translated') }}</span>
+            </div>
+            <input type="text" name="nama" id="nama" class="adm-form-input @error('nama') is-invalid @enderror" value="{{ old('nama') }}" placeholder="Contoh: Sang Penari Bali / Single Red Flower" required>
+            <div class="adm-form-hint">{{ __('admin.bilingual_subtitle') }}</div>
             @error('nama')
               <div class="adm-form-error">{{ $message }}</div>
             @enderror
@@ -99,9 +88,9 @@
 
           {{-- DIMENSI --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="dimensi">Ukuran / Dimensi <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="dimensi" id="dimensi" class="adm-form-input @error('dimensi') is-invalid @enderror" value="{{ old('dimensi') }}" placeholder="Contoh: 100 x 120 cm" required>
-            <div class="adm-form-hint">Format bebas, misalnya: 120 x 80 cm atau Kanvas 150 x 200 cm</div>
+            <label class="adm-form-label" for="dimensi">{{ __('admin.dim_label') }} <span style="color:var(--clr-danger)">*</span></label>
+            <input type="text" name="dimensi" id="dimensi" class="adm-form-input @error('dimensi') is-invalid @enderror" value="{{ old('dimensi') }}" placeholder="Contoh: 100 x 120 cm / Size 50 x 70 cm, Cotton" required>
+            <div class="adm-form-hint">{{ __('admin.dim_hint') }}</div>
             @error('dimensi')
               <div class="adm-form-error">{{ $message }}</div>
             @enderror
@@ -109,9 +98,9 @@
 
           {{-- LINK PEMBELIAN / DETAIL --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="link">Tautan / Link Karya <span style="color:var(--clr-danger)">*</span></label>
+            <label class="adm-form-label" for="link">{{ __('admin.link_label') }} <span style="color:var(--clr-danger)">*</span></label>
             <input type="text" name="link" id="link" class="adm-form-input @error('link') is-invalid @enderror" value="{{ old('link') }}" placeholder="Contoh: https://wa.me/628123456789 atau https://tokopedia.com/..." required>
-            <div class="adm-form-hint">Tautan saat pengunjung mengklik tombol 'Beli / Tanya Karya' di halaman koleksi publik.</div>
+            <div class="adm-form-hint">{{ __('admin.link_hint') }}</div>
             @error('link')
               <div class="adm-form-error">{{ $message }}</div>
             @enderror
@@ -121,9 +110,9 @@
           <div class="adm-form-actions">
             <button type="submit" class="adm-btn adm-btn--primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Simpan &amp; Optimasi Karya
+              {{ __('admin.save_gallery_btn') }}
             </button>
-            <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
+            <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost">{{ __('admin.cancel') }}</a>
           </div>
 
         </form>
@@ -134,6 +123,5 @@
 </div>
 
 @include('partials.admin-js')
-
 </body>
 </html>

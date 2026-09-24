@@ -262,21 +262,32 @@ class MediaPipeline
     }
 
     /**
-     * Delete all variants associated with a given image filename.
+     * Delete all variants associated with a given image filename safely.
      */
-    public static function deleteVariants(string $filename, string $subfolder = 'postsimg'): void
+    public static function deleteVariants(?string $filename, string $subfolder = 'postsimg'): void
     {
+        if (empty($filename)) {
+            return;
+        }
+
         $baseName = pathinfo($filename, PATHINFO_FILENAME);
         // Strip any existing suffix like _sm, _md, _lg, _orig
         $cleanBase = preg_replace('/_(sm|md|lg|orig)$/', '', $baseName);
 
+        if (empty($cleanBase) || strlen(trim($cleanBase)) < 3) {
+            return;
+        }
+
         $disk = Storage::disk('public');
         $subfolder = trim($subfolder, '/\\');
+
+        // Match only exact base or base with _(sm|md|lg|orig) suffix and any extension
+        $pattern = '/^' . preg_quote($cleanBase, '/') . '(_(sm|md|lg|orig))?\.[a-zA-Z0-9]+$/i';
 
         $allFiles = $disk->files($subfolder);
         foreach ($allFiles as $file) {
             $fName = basename($file);
-            if (str_starts_with($fName, $cleanBase)) {
+            if (preg_match($pattern, $fName)) {
                 $disk->delete($file);
             }
         }
@@ -287,7 +298,7 @@ class MediaPipeline
             $scanned = @scandir($pubDir) ?: [];
             foreach ($scanned as $f) {
                 if ($f === '.' || $f === '..') continue;
-                if (str_starts_with($f, $cleanBase)) {
+                if (preg_match($pattern, $f)) {
                     @unlink("{$pubDir}/{$f}");
                 }
             }

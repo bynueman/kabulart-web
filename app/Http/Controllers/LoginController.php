@@ -24,13 +24,15 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'password' => 'Wrong email or password',
+            'password' => __('flash.login_failed'),
         ]);
     }
 
-    function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect('/');
     }
 }

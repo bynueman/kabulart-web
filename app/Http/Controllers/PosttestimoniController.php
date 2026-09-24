@@ -36,10 +36,12 @@ class PosttestimoniController extends Controller
                 'image' => $optimized['filename'],
             ]);
 
-            return redirect()->route('posttestimoni.index')->with(['success' => 'Data Berhasil Disimpan & Gambar Dioptimasi Otomatis!']);
+            return redirect()->route('posttestimoni.index')->with([
+                'success' => __('flash.saved_success'),
+            ]);
         } catch (\Throwable $e) {
             Log::error('Testimoni image upload optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['image' => __('flash.image_error') . $e->getMessage()]);
         }
     }
 
@@ -52,36 +54,54 @@ class PosttestimoniController extends Controller
     public function update(Request $request, $id): RedirectResponse
     {
         $this->validate($request, [
-            'image' => 'required|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+            'image' => 'nullable|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
         ]);
 
         $post = Posttestimoni::findOrFail($id);
 
         try {
-            MediaPipeline::deleteVariants($post->image, 'postsimg');
-            $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
-            $post->image = $optimized['filename'];
+            $oldImage = $post->image;
+            $newImageUploaded = false;
+
+            if ($request->hasFile('image')) {
+                $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+                $post->image = $optimized['filename'];
+                $newImageUploaded = true;
+            }
+
             $post->save();
 
-            return redirect()->route('posttestimoni.index')->with(['success' => 'Data Berhasil Diperbarui!']);
+            // Only delete old variants after new image and model have been successfully saved
+            if ($newImageUploaded && !empty($oldImage) && $oldImage !== $post->image) {
+                MediaPipeline::deleteVariants($oldImage, 'postsimg');
+            }
+
+            return redirect()->route('posttestimoni.index')->with([
+                'success' => __('flash.updated_success'),
+            ]);
         } catch (\Throwable $e) {
             Log::error('Testimoni image update optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['image' => __('flash.image_error') . $e->getMessage()]);
         }
     }
 
     public function destroy($id): RedirectResponse
     {
         $post = Posttestimoni::findOrFail($id);
-
-        try {
-            MediaPipeline::deleteVariants($post->image, 'postsimg');
-        } catch (\Throwable $e) {
-            Log::warning('Error deleting testimoni image variants: ' . $e->getMessage());
-        }
+        $imageToDelete = $post->image;
 
         $post->delete();
 
-        return redirect()->route('posttestimoni.index')->with(['success' => 'Data Delete Successfully']);
+        if (!empty($imageToDelete)) {
+            try {
+                MediaPipeline::deleteVariants($imageToDelete, 'postsimg');
+            } catch (\Throwable $e) {
+                Log::warning('Error deleting testimoni image variants: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('posttestimoni.index')->with([
+            'success' => __('flash.deleted_success'),
+        ]);
     }
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Testimoni — Kabul Art Gallery Admin</title>
+  <title>{{ __('admin.edit_testimoni_title') }} — Kabul Art Gallery Admin</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
@@ -14,22 +14,7 @@
   <div class="adm-overlay" id="admOverlay"></div>
 
   <div class="adm-main">
-    <div class="adm-topbar">
-      <button class="adm-hamburger" id="admHamburger" aria-label="Toggle sidebar">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div><div class="adm-topbar__title">Testimoni</div></div>
-      <div class="adm-topbar__actions">
-        <a href="{{ route('posttestimoni.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          Kembali
-        </a>
-        <a href="/" target="_blank" class="adm-btn adm-btn--ghost adm-btn--sm">Lihat Website</a>
-        <a href="/logout" class="adm-btn adm-btn--sm" style="background:rgba(155,35,53,0.1);color:#9b2335;border:1px solid rgba(155,35,53,0.2);">Logout</a>
-      </div>
-    </div>
+    @include('partials.admin-topbar', ['title' => __('admin.testimoni'), 'backUrl' => route('posttestimoni.index')])
 
     <div class="adm-content">
 
@@ -48,8 +33,8 @@
 
       <div class="adm-page-header">
         <div>
-          <span class="adm-page-header__eyebrow">Manajemen Testimoni</span>
-          <h1 class="adm-page-header__title">Ganti Bukti Testimoni #{{ $post->id }}</h1>
+          <span class="adm-page-header__eyebrow">{{ __('admin.testimoni') }}</span>
+          <h1 class="adm-page-header__title">{{ __('admin.edit_testimoni_title') }} #{{ $post->id }}</h1>
         </div>
       </div>
 
@@ -60,7 +45,7 @@
 
           {{-- GAMBAR SAAT INI & GANTI FOTO --}}
           <div class="adm-form-group">
-            <label class="adm-form-label">Foto Testimoni Saat Ini</label>
+            <label class="adm-form-label">{{ __('admin.testimoni_current') }}</label>
             @php
               $picData = \App\Services\MediaPipeline::getPictureData($post->image, 'postsimg');
             @endphp
@@ -68,11 +53,11 @@
               <img src="{{ $picData['fallback_url'] }}" alt="Testimoni" style="width:80px;height:80px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--clr-border);" onerror="this.onerror=null;this.src='{{ asset('img/desain.png') }}';">
               <div>
                 <div style="font-weight:600;font-size:0.88rem;color:var(--clr-espresso);">{{ $post->image }}</div>
-                <div style="font-size:0.78rem;color:var(--clr-espresso-lt);">Pilih gambar baru di bawah untuk mengganti bukti testimoni ini.</div>
+                <div style="font-size:0.78rem;color:var(--clr-espresso-lt);">{{ __('admin.leave_empty_hint') }}</div>
               </div>
             </div>
 
-            <label class="adm-form-label" for="imageInput">Pilih Gambar Pengganti <span style="color:var(--clr-danger)">*</span></label>
+            <label class="adm-form-label" for="imageInput">{{ __('admin.testimoni_replace') }} <span style="color:var(--clr-danger)">*</span></label>
             <div class="adm-upload-zone" id="uploadZone">
               <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif" required>
               <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -81,8 +66,8 @@
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
               <div class="adm-upload-zone__text">
-                <strong>Klik untuk memilih gambar baru</strong> atau seret file ke sini<br>
-                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP responsif saat disimpan.</small>
+                <strong>{{ __('admin.upload_drag') }}</strong><br>
+                <small style="color:var(--clr-espresso-lt)">{{ __('admin.upload_hint') }}</small>
               </div>
             </div>
 
@@ -105,9 +90,9 @@
           <div class="adm-form-actions">
             <button type="submit" class="adm-btn adm-btn--primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Perbarui Testimoni
+              {{ __('admin.update_testimoni_btn') }}
             </button>
-            <a href="{{ route('posttestimoni.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
+            <a href="{{ route('posttestimoni.index') }}" class="adm-btn adm-btn--ghost">{{ __('admin.cancel') }}</a>
           </div>
 
         </form>
@@ -118,6 +103,5 @@
 </div>
 
 @include('partials.admin-js')
-
 </body>
 </html>

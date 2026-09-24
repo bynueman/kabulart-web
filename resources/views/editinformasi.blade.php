@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Informasi — Kabul Art Gallery Admin</title>
+  <title>{{ __('admin.edit_info_title') }} — Kabul Art Gallery Admin</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
@@ -14,22 +14,7 @@
   <div class="adm-overlay" id="admOverlay"></div>
 
   <div class="adm-main">
-    <div class="adm-topbar">
-      <button class="adm-hamburger" id="admHamburger" aria-label="Toggle sidebar">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <div><div class="adm-topbar__title">Informasi</div></div>
-      <div class="adm-topbar__actions">
-        <a href="{{ route('postsinformasi.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          Kembali
-        </a>
-        <a href="/" target="_blank" class="adm-btn adm-btn--ghost adm-btn--sm">Lihat Website</a>
-        <a href="/logout" class="adm-btn adm-btn--sm" style="background:rgba(155,35,53,0.1);color:#9b2335;border:1px solid rgba(155,35,53,0.2);">Logout</a>
-      </div>
-    </div>
+    @include('partials.admin-topbar', ['title' => __('admin.informasi'), 'backUrl' => route('postsinformasi.index')])
 
     <div class="adm-content">
 
@@ -37,6 +22,12 @@
         <div class="adm-flash adm-flash--success" data-auto-dismiss>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           {{ session('success') }}
+        </div>
+      @endif
+      @if(session('warning'))
+        <div class="adm-flash adm-flash--warning" data-auto-dismiss style="background:rgba(184,147,42,0.12);color:var(--clr-gold);border:1px solid rgba(184,147,42,0.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ session('warning') }}
         </div>
       @endif
       @if(isset($errors) && $errors->any())
@@ -48,8 +39,8 @@
 
       <div class="adm-page-header">
         <div>
-          <span class="adm-page-header__eyebrow">Manajemen Berita &amp; Artikel</span>
-          <h1 class="adm-page-header__title">Edit Informasi #{{ $post->id }}</h1>
+          <span class="adm-page-header__eyebrow">{{ __('admin.informasi') }}</span>
+          <h1 class="adm-page-header__title">{{ __('admin.edit_info_title') }} #{{ $post->id }}</h1>
         </div>
       </div>
 
@@ -60,7 +51,7 @@
 
           {{-- GAMBAR SAAT INI & GANTI GAMBAR --}}
           <div class="adm-form-group">
-            <label class="adm-form-label">Gambar Banner Saat Ini</label>
+            <label class="adm-form-label">{{ __('admin.banner_current') }}</label>
             @php
               $picData = \App\Services\MediaPipeline::getPictureData($post->image, 'postsimg');
             @endphp
@@ -68,11 +59,11 @@
               <img src="{{ $picData['fallback_url'] }}" alt="Informasi" style="width:72px;height:72px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--clr-border);" onerror="this.onerror=null;this.src='{{ asset('img/desain.png') }}';">
               <div>
                 <div style="font-weight:600;font-size:0.88rem;color:var(--clr-espresso);">{{ $post->image }}</div>
-                <div style="font-size:0.78rem;color:var(--clr-espresso-lt);">Biarkan form upload di bawah kosong jika tidak ingin mengubah gambar.</div>
+                <div style="font-size:0.78rem;color:var(--clr-espresso-lt);">{{ __('admin.leave_empty_hint') }}</div>
               </div>
             </div>
 
-            <label class="adm-form-label" for="imageInput">Ganti Gambar Banner (Opsional)</label>
+            <label class="adm-form-label" for="imageInput">{{ __('admin.banner_replace') }}</label>
             <div class="adm-upload-zone" id="uploadZone">
               <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif">
               <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -81,8 +72,8 @@
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
               <div class="adm-upload-zone__text">
-                <strong>Klik untuk memilih gambar pengganti</strong> atau seret file ke sini<br>
-                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP saat disimpan.</small>
+                <strong>{{ __('admin.upload_drag') }}</strong><br>
+                <small style="color:var(--clr-espresso-lt)">{{ __('admin.upload_hint') }}</small>
               </div>
             </div>
 
@@ -101,23 +92,60 @@
             @enderror
           </div>
 
-          {{-- DESKRIPSI INFORMASI --}}
-          <div class="adm-form-group">
-            <label class="adm-form-label" for="deskripsi">Teks / Deskripsi Informasi <span style="color:var(--clr-danger)">*</span></label>
-            <textarea name="deskripsi" id="deskripsi" class="adm-form-textarea @error('deskripsi') is-invalid @enderror" placeholder="Tuliskan berita, liputan pameran, atau rilis kegiatan seni..." rows="8" required>{{ old('deskripsi', $post->deskripsi) }}</textarea>
-            <div class="adm-form-hint">Dapat memuat informasi kegiatan galeri, pameran seni, workshop, atau pengumuman penting.</div>
-            @error('deskripsi')
-              <div class="adm-form-error">{{ $message }}</div>
-            @enderror
+          {{-- BILINGUAL DESKRIPSI BOX --}}
+          <div class="adm-bilingual-box">
+            <div class="adm-bilingual-header">
+              <div>
+                <strong style="font-size:0.88rem;color:var(--clr-espresso);">{{ __('admin.desc_label') }} (Bilingual)</strong>
+                <div style="font-size:0.75rem;color:var(--clr-espresso-lt);">{{ __('admin.bilingual_subtitle') }}</div>
+              </div>
+              <div>
+                <span class="adm-bilingual-badge adm-bilingual-badge--{{ $post->translation_manual ? 'manual' : 'auto' }}">
+                  {{ $post->translation_manual ? __('admin.manual_translated') : __('admin.auto_translated') }}
+                </span>
+                <span style="font-size:0.74rem;color:var(--clr-espresso-lt);margin-left:0.4rem;">
+                  {{ __('admin.source_lang') }}: <strong>{{ strtoupper($post->translation_source ?? 'id') }}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div class="adm-bilingual-grid">
+              <div>
+                <label class="adm-form-label" for="deskripsi_id">{{ __('admin.label_id') }} <span style="color:var(--clr-danger)">*</span></label>
+                <textarea
+                  name="deskripsi_id"
+                  id="deskripsi_id"
+                  class="adm-form-textarea @error('deskripsi_id') is-invalid @enderror"
+                  rows="8"
+                  required
+                >{{ old('deskripsi_id', $post->deskripsi_id ?: $post->deskripsi) }}</textarea>
+                @error('deskripsi_id')
+                  <div class="adm-form-error">{{ $message }}</div>
+                @enderror
+              </div>
+              <div>
+                <label class="adm-form-label" for="deskripsi_en">{{ __('admin.label_en') }} <span style="color:var(--clr-danger)">*</span></label>
+                <textarea
+                  name="deskripsi_en"
+                  id="deskripsi_en"
+                  class="adm-form-textarea @error('deskripsi_en') is-invalid @enderror"
+                  rows="8"
+                  required
+                >{{ old('deskripsi_en', $post->deskripsi_en ?: $post->deskripsi) }}</textarea>
+                @error('deskripsi_en')
+                  <div class="adm-form-error">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
           </div>
 
           {{-- ACTION BUTTONS --}}
           <div class="adm-form-actions">
             <button type="submit" class="adm-btn adm-btn--primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Perbarui Informasi
+              {{ __('admin.update_info_btn') }}
             </button>
-            <a href="{{ route('postsinformasi.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
+            <a href="{{ route('postsinformasi.index') }}" class="adm-btn adm-btn--ghost">{{ __('admin.cancel') }}</a>
           </div>
 
         </form>
@@ -128,6 +156,5 @@
 </div>
 
 @include('partials.admin-js')
-
 </body>
 </html>

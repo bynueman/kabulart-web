@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'translation' => [
+        'driver'     => env('TRANSLATION_DRIVER', 'google'),
+        'google_key' => env('GOOGLE_TRANSLATE_API_KEY', env('TRANSLATION_GOOGLE_KEY')),
+        'deepl_key'  => env('DEEPL_AUTH_KEY', env('TRANSLATION_DEEPL_KEY')),
+    ],
+
 ];
