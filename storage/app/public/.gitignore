@@ -1,2 +1,9 @@
 *
 !.gitignore
+!postsimg/
+postsimg/*
+!postsimg/*.webp
+postsimg/*_sm.webp
+postsimg/*_md.webp
+postsimg/*_lg.webp
+postsimg/*_orig.*
