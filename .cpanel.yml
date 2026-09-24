@@ -25,5 +25,5 @@ deployment:
     # 6. Safely establish storage symlink without overwriting or deleting existing production storage
     - if [ ! -e "$DEPLOYPATH/storage" ] && [ ! -L "$DEPLOYPATH/storage" ]; then /bin/ln -s $REPOPATH/storage/app/public $DEPLOYPATH/storage; fi
 
-    # 7. Ensure necessary writable permissions on Laravel runtime directories
-    - /bin/chmod -R 0775 $REPOPATH/storage $REPOPATH/bootstrap/cache
+    # # 7. Ensure necessary writable permissions on Laravel runtime directories
+    # - /bin/chmod -R 0775 $REPOPATH/storage $REPOPATH/bootstrap/cache
