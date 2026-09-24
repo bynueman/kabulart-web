@@ -45,7 +45,10 @@ Route::group(['middleware' => 'nocache'], function () { //midel noceceh in brows
 
         //admin page home
         Route::get('/homeadmin', function () {
-            return view('homeadmin');
+            $countGalery    = \App\Models\Postgalery::count();
+            $countInformasi = \App\Models\Postinformasi::count();
+            $countTestimoni = \App\Models\Posttestimoni::count();
+            return view('homeadmin', compact('countGalery', 'countInformasi', 'countTestimoni'));
         });
         //add info
         Route::get('/postsinformasi', 'PostinformasiyController@index')->name('posts.index');

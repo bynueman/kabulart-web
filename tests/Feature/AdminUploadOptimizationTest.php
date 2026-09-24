@@ -70,4 +70,49 @@ class AdminUploadOptimizationTest extends TestCase
         Storage::disk('public')->assertMissing("postsimg/{$base}_md.webp");
         Storage::disk('public')->assertMissing("postsimg/{$base}_lg.webp");
     }
+
+    public function test_postinformasi_store_and_destroy()
+    {
+        $image = UploadedFile::fake()->image('info_news.jpg', 1600, 1000);
+        $response = $this->post(route('postsinformasi.store'), [
+            'image'     => $image,
+            'deskripsi' => 'Liputan pameran seni kontemporer.',
+        ]);
+
+        $response->assertRedirect(route('postsinformasi.index'));
+
+        $post = Postinformasi::latest()->first();
+        $this->assertNotNull($post);
+        $this->assertStringEndsWith('.webp', $post->image);
+        $base = pathinfo($post->image, PATHINFO_FILENAME);
+
+        Storage::disk('public')->assertExists('postsimg/' . $post->image);
+
+        // Delete
+        $delResp = $this->delete(route('postsinformasi.destroy', $post->id));
+        $delResp->assertRedirect(route('postsinformasi.index'));
+        Storage::disk('public')->assertMissing('postsimg/' . $post->image);
+    }
+
+    public function test_posttestimoni_store_and_destroy()
+    {
+        $image = UploadedFile::fake()->image('testimoni_screenshot.png', 800, 800);
+        $response = $this->post(route('posttestimoni.store'), [
+            'image' => $image,
+        ]);
+
+        $response->assertRedirect(route('posttestimoni.index'));
+
+        $post = Posttestimoni::latest()->first();
+        $this->assertNotNull($post);
+        $this->assertStringEndsWith('.webp', $post->image);
+
+        Storage::disk('public')->assertExists('postsimg/' . $post->image);
+
+        // Delete
+        $delResp = $this->delete(route('posttestimoni.destroy', $post->id));
+        $delResp->assertRedirect(route('posttestimoni.index'));
+        Storage::disk('public')->assertMissing('postsimg/' . $post->image);
+    }
 }
+

@@ -1,34 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/login.css">
-    <title>login admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Kabul Art Gallery</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body>
-    <form action="{{ route('login.action') }}" method="post">
-        <div class="imgcontainer">
-            <img src="img/logokabul.png" alt="Avatar_login" class="avatar">
+  <div class="adm-login-page">
+    <div class="adm-login-card">
+
+      <div class="adm-login-brand">
+        <img src="{{ asset('img/logokabul.png') }}" alt="Kabul Art Gallery logo">
+        <div>
+          <div class="adm-login-brand__title">Kabul Art Gallery</div>
+          <div class="adm-login-brand__sub">Admin Panel</div>
         </div>
+      </div>
+      <div class="adm-login-divider"></div>
+
+      <form action="{{ route('login.action') }}" method="post" autocomplete="off">
         @csrf
-        <div class="container">
-            <label for="email"><b>Email</b></label>
-            <input type="text" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="Enter Email" name="email" required>
-            @error('email')
-            <div class="invalid-feedback">
-                {{ $message }}
-            </div>
-            @enderror
-            <label for="password"><b>Password</b></label>
-            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="Enter Password" name="password" required>
-            @error('password')
-            <div class="invalid-feedback">
-                {{ $message }}
-            </div>
-            @enderror
-            <button type="submit">LOGIN</button>
+
+        <div class="adm-form-group">
+          <label class="adm-form-label" for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{ old('email') }}"
+            placeholder="admin@example.com"
+            required
+            autocomplete="username"
+            class="adm-form-input @error('email') is-invalid @enderror"
+          >
+          @error('email')
+            <div class="adm-form-error">{{ $message }}</div>
+          @enderror
         </div>
-    </form>
+
+        <div class="adm-form-group">
+          <label class="adm-form-label" for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+            class="adm-form-input @error('password') is-invalid @enderror"
+          >
+          @error('password')
+            <div class="adm-form-error">{{ $message }}</div>
+          @enderror
+        </div>
+
+        <button type="submit" class="adm-login-submit" id="login-submit">Masuk ke Dashboard</button>
+      </form>
+
+    </div>
+  </div>
 </body>
 </html>

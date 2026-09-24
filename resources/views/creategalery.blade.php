@@ -1,242 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>add for you gallery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Karya Gallery — Kabul Art Gallery Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body>
-    <style>
-        body {
-            background-color: lightgreen;
-        }
+<div class="adm-shell">
 
-        h3 {
-            text-align: center;
-            font-size: 30px;
-        }
+  @include('partials.admin-sidebar', ['activeNav' => 'gallery'])
+  <div class="adm-overlay" id="admOverlay"></div>
 
-        * {
-            box-sizing: border-box;
-        }
+  <div class="adm-main">
+    <div class="adm-topbar">
+      <button class="adm-hamburger" id="admHamburger" aria-label="Toggle sidebar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div><div class="adm-topbar__title">Gallery</div></div>
+      <div class="adm-topbar__actions">
+        <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Kembali
+        </a>
+        <a href="/" target="_blank" class="adm-btn adm-btn--ghost adm-btn--sm">Lihat Website</a>
+        <a href="/logout" class="adm-btn adm-btn--sm" style="background:rgba(155,35,53,0.1);color:#9b2335;border:1px solid rgba(155,35,53,0.2);">Logout</a>
+      </div>
+    </div>
 
-        input[type=text], select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-        }
+    <div class="adm-content">
 
-        label {
-            padding: 12px 12px 12px 0;
-            display: inline-block;
-        }
-
-        input[type=submit] {
-            background-color: #04AA6D;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            float: right;
-            margin: 10px;
-        }
-
-        input[type=file] {
-            background-color: #04AA6D;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 15px;
-            cursor: pointer;
-            float: left;
-        }
-
-        input[type=reset] {
-            background-color: red;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            float: right;
-            margin: 10px;
-        }
-
-        input[type=submit]:hover {
-            background-color: green;
-        }
-
-        input[type=reset]:hover {
-            background-color: orangered;
-        }
-
-        .container {
-            border-radius: 5px;
-            background-color: #f2f2f2;
-            padding: 20px;
-        }
-
-        .col-25 {
-            float: left;
-            width: 15%;
-            margin-top: 6px;
-        }
-
-        .col-75 {
-            float: left;
-            width: 85%;
-            margin-top: 6px;
-        }
-
-        .row:after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-
-        @media screen and (max-width: 600px) {
-            .col-25, .col-75 {
-                width: 100%;
-                margin-top: 0;
-            }
-
-            input[type=submit] {
-                margin: 10px;
-                float: left;
-                width: 40%;
-            }
-
-            input[type=reset] {
-                margin: 10px;
-                float: left;
-            }
-        }
-        .danger {
-            color: red;
-        }
-    </style>
-    <div class="container">
-        <div>
-            <h3>Add Galery</h3>
+      @if(session('success'))
+        <div class="adm-flash adm-flash--success" data-auto-dismiss>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          {{ session('success') }}
         </div>
+      @endif
+      @if($errors->any())
+        <div class="adm-flash adm-flash--error" data-auto-dismiss>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ $errors->first() }}
+        </div>
+      @endif
 
-        <form action="{{ route('postsgalery.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf 
-            <div class="row">
-                <div class="col-25">
-                    <label for="fname">FOTO</label>
-                </div>
-                <div class="col-75">
-                    <input type="file" id="imageInput" name="image" accept="image/jpeg,image/png,image/webp,image/avif">
-                    <div id="imagePreviewWrap" style="display:none; margin-top:10px;">
-                        <img id="imagePreview" src="" alt="Pratinjau Foto" style="max-height: 180px; max-width: 100%; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                        <p id="imageFileInfo" style="font-size: 13px; color: #444; margin-top: 4px;"></p>
-                    </div>
-                    <div id="clientError" class="danger" style="display:none; margin-top:6px;"></div>
-                </div>
-                @error('image')
-                    <div class="danger">
-                        {{ $message }}
-                    </div>
-                @enderror
+      <div class="adm-page-header">
+        <div>
+          <span class="adm-page-header__eyebrow">Manajemen Gallery</span>
+          <h1 class="adm-page-header__title">Tambah Karya Baru</h1>
+        </div>
+      </div>
+
+      <div class="adm-form-card">
+        <form action="{{ route('postsgalery.store') }}" method="POST" enctype="multipart/form-data" id="galleryForm">
+          @csrf
+
+          {{-- UPLOAD FOTO --}}
+          <div class="adm-form-group">
+            <label class="adm-form-label" for="imageInput">Foto Karya Seni <span style="color:var(--clr-danger)">*</span></label>
+            <div class="adm-upload-zone" id="uploadZone">
+              <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif" required>
+              <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <div class="adm-upload-zone__text">
+                <strong>Klik untuk memilih gambar</strong> atau seret file ke sini<br>
+                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP responsif saat disimpan.</small>
+              </div>
             </div>
 
-            <div class="row">
-                <div class="col-25">
-                    <label for="fname">NAMA</label>
-                </div>
-                <div class="col-75">
-                    <input type="text" id="fname" name="nama" value="{{ old('nama') }}" placeholder="Masukkan Nama Produk">
-                </div>
-                @error('nama')
-                    <div class="danger">
-                        {{ $message }}
-                    </div>
-                @enderror
+            <div class="adm-form-error" id="previewError" style="display:none;"></div>
+
+            <div class="adm-preview" id="previewWrap">
+              <img id="previewImg" class="adm-preview__img" src="" alt="Pratinjau Foto Karya">
+              <div class="adm-preview__info">
+                <span class="adm-preview__name" id="previewName"></span>
+                <span id="previewSize"></span>
+              </div>
             </div>
 
-            <div class="row">
-                <div class="col-25">
-                    <label for="fname">UKURAN</label>
-                </div>
-                <div class="col-75">
-                    <input type="text" id="rupiah" name="dimensi" value="{{ old('dimensi') }}" placeholder="Masukkan Dimensi Produk">
-                </div>
-                @error('dimensi')
-                    <div class="danger">
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
+            @error('image')
+              <div class="adm-form-error">{{ $message }}</div>
+            @enderror
+          </div>
 
-            <div class="row">
-                <div class="col-25">
-                    <label for="fname">LINK WA</label>
-                </div>
-                <div class="col-75">
-                    <input type="text" id="fname" name="link"  value="{{ old('link') }}" placeholder="Masukkan Link Produk">
-                </div>
-                @error('link')
-                    <div class="danger">
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
+          {{-- NAMA KARYA --}}
+          <div class="adm-form-group">
+            <label class="adm-form-label" for="nama">Nama / Judul Karya <span style="color:var(--clr-danger)">*</span></label>
+            <input type="text" name="nama" id="nama" class="adm-form-input @error('nama') is-invalid @enderror" value="{{ old('nama') }}" placeholder="Contoh: Sang Penari Bali" required>
+            @error('nama')
+              <div class="adm-form-error">{{ $message }}</div>
+            @enderror
+          </div>
 
-            <div class="row">
-                <input type="submit" value="SIMPAN" ></input>
-                <input type="reset" value="RESET" ></input>
-            </div>
+          {{-- DIMENSI --}}
+          <div class="adm-form-group">
+            <label class="adm-form-label" for="dimensi">Ukuran / Dimensi <span style="color:var(--clr-danger)">*</span></label>
+            <input type="text" name="dimensi" id="dimensi" class="adm-form-input @error('dimensi') is-invalid @enderror" value="{{ old('dimensi') }}" placeholder="Contoh: 100 x 120 cm" required>
+            <div class="adm-form-hint">Format bebas, misalnya: 120 x 80 cm atau Kanvas 150 x 200 cm</div>
+            @error('dimensi')
+              <div class="adm-form-error">{{ $message }}</div>
+            @enderror
+          </div>
+
+          {{-- LINK PEMBELIAN / DETAIL --}}
+          <div class="adm-form-group">
+            <label class="adm-form-label" for="link">Tautan / Link Karya <span style="color:var(--clr-danger)">*</span></label>
+            <input type="text" name="link" id="link" class="adm-form-input @error('link') is-invalid @enderror" value="{{ old('link') }}" placeholder="Contoh: https://wa.me/628123456789 atau https://tokopedia.com/..." required>
+            <div class="adm-form-hint">Tautan saat pengunjung mengklik tombol 'Beli / Tanya Karya' di halaman koleksi publik.</div>
+            @error('link')
+              <div class="adm-form-error">{{ $message }}</div>
+            @enderror
+          </div>
+
+          {{-- ACTION BUTTONS --}}
+          <div class="adm-form-actions">
+            <button type="submit" class="adm-btn adm-btn--primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Simpan &amp; Optimasi Karya
+            </button>
+            <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
+          </div>
 
         </form>
+      </div>
+
     </div>
-    <script>
-        var currentPreviewUrl = null;
-        var imageInput = document.getElementById('imageInput');
-        var previewWrap = document.getElementById('imagePreviewWrap');
-        var previewImg = document.getElementById('imagePreview');
-        var fileInfo = document.getElementById('imageFileInfo');
-        var clientError = document.getElementById('clientError');
+  </div>
+</div>
 
-        function cleanupPreview() {
-            if (currentPreviewUrl) {
-                URL.revokeObjectURL(currentPreviewUrl);
-                currentPreviewUrl = null;
-            }
-            if (previewWrap) previewWrap.style.display = 'none';
-            if (clientError) clientError.style.display = 'none';
-        }
+@include('partials.admin-js')
 
-        if (imageInput) {
-            imageInput.addEventListener('change', function(e) {
-                cleanupPreview();
-                var file = e.target.files[0];
-                if (!file) return;
-
-                if (file.size > 15 * 1024 * 1024) {
-                    clientError.textContent = 'Ukuran file melebihi 15MB (' + (file.size / 1048576).toFixed(1) + ' MB). Harap pilih file yang lebih kecil.';
-                    clientError.style.display = 'block';
-                    imageInput.value = '';
-                    return;
-                }
-
-                currentPreviewUrl = URL.createObjectURL(file);
-                previewImg.src = currentPreviewUrl;
-                fileInfo.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB) — Dioptimasi otomatis saat disimpan.';
-                previewWrap.style.display = 'block';
-            });
-        }
-
-        var form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('reset', function() {
-                cleanupPreview();
-            });
-        }
-    </script>
 </body>
 </html>
