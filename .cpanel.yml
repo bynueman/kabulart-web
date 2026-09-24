@@ -1,0 +1,29 @@
+---
+deployment:
+  tasks:
+    # 1. Define paths (using $HOME for portable, safe resolution without hardcoded usernames)
+    - export REPOPATH=$HOME/kabulgallery
+    - export DEPLOYPATH=$HOME/public_html
+
+    # 2. Ensure public asset directories exist in document root
+    - /bin/mkdir -p $DEPLOYPATH/css
+    - /bin/mkdir -p $DEPLOYPATH/img
+
+    # 3. Deploy front controller and server configuration
+    - /bin/cp -f $REPOPATH/public/index.cpanel.php $DEPLOYPATH/index.php
+    - /bin/cp -f $REPOPATH/public/.htaccess $DEPLOYPATH/.htaccess
+    - /bin/cp -f $REPOPATH/public/favicon.ico $DEPLOYPATH/favicon.ico
+    - /bin/cp -f $REPOPATH/public/robots.txt $DEPLOYPATH/robots.txt
+
+    # 4. Deploy redesigned gallery styles and media assets
+    - /bin/cp -rf $REPOPATH/public/css/* $DEPLOYPATH/css/
+    - /bin/cp -rf $REPOPATH/public/img/* $DEPLOYPATH/img/
+
+    # 5. Deploy JS assets if present
+    - if [ -d "$REPOPATH/public/js" ]; then /bin/mkdir -p $DEPLOYPATH/js && /bin/cp -rf $REPOPATH/public/js/* $DEPLOYPATH/js/; fi
+
+    # 6. Safely establish storage symlink without overwriting or deleting existing production storage
+    - if [ ! -e "$DEPLOYPATH/storage" ] && [ ! -L "$DEPLOYPATH/storage" ]; then /bin/ln -s $REPOPATH/storage/app/public $DEPLOYPATH/storage; fi
+
+    # 7. Ensure necessary writable permissions on Laravel runtime directories
+    - /bin/chmod -R 0775 $REPOPATH/storage $REPOPATH/bootstrap/cache

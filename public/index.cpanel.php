@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Kabul Art Gallery — cPanel Production Front Controller
+ *
+ * Target Location: $HOME/public_html/index.php
+ * Laravel App:    $HOME/kabulgallery
+ */
+
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 use Illuminate\Contracts\Http\Kernel;
@@ -9,18 +16,15 @@ define('LARAVEL_START', microtime(true));
 
 /*
 |--------------------------------------------------------------------------
-| Resolve Laravel Application Path
+| Application Path Resolution
 |--------------------------------------------------------------------------
-| In cPanel shared hosting:
-|   Document root: $HOME/public_html/index.php
-|   Laravel root:  $HOME/kabulgallery
-|
-| In local/standard setup:
-|   Document root: [repo]/public/index.php
-|   Laravel root:  [repo]
+| References the Laravel application installed at ~/kabulgallery relative
+| to this file in ~/public_html/index.php.
 */
 $appPath = dirname(__DIR__) . '/kabulgallery';
+
 if (!file_exists($appPath . '/bootstrap/app.php')) {
+    // Fallback in case repository directory differs
     $appPath = dirname(__DIR__);
 }
 
@@ -28,13 +32,7 @@ if (!file_exists($appPath . '/bootstrap/app.php')) {
 |--------------------------------------------------------------------------
 | Check If The Application Is Under Maintenance
 |--------------------------------------------------------------------------
-|
-| If the application is in maintenance / demo mode via the "down" command
-| we will load this file so that any pre-rendered content can be shown
-| instead of starting the framework, which could cause an exception.
-|
 */
-
 if (file_exists($maintenance = $appPath . '/storage/framework/maintenance.php')) {
     require $maintenance;
 }
@@ -43,29 +41,17 @@ if (file_exists($maintenance = $appPath . '/storage/framework/maintenance.php'))
 |--------------------------------------------------------------------------
 | Register The Auto Loader
 |--------------------------------------------------------------------------
-|
-| Composer provides a convenient, automatically generated class loader for
-| this application. We just need to utilize it! We'll simply require it
-| into the script here so we don't need to manually load our classes.
-|
 */
-
 require $appPath . '/vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
 | Run The Application
 |--------------------------------------------------------------------------
-|
-| Once we have the application, we can handle the incoming request using
-| the application's HTTP kernel. Then, we will send the response back
-| to this client's browser, allowing them to enjoy our application.
-|
 */
-
 $app = require_once $appPath . '/bootstrap/app.php';
 
-// Set web document root to this index.php's directory (e.g. ~/public_html on cPanel)
+// Set public path to this directory (~/public_html)
 $app->usePublicPath(__DIR__);
 
 $kernel = $app->make(Kernel::class);

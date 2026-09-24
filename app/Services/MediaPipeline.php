@@ -98,7 +98,25 @@ class MediaPipeline
             throw new \InvalidArgumentException("Image dimensions ({$origW}x{$origH}) exceed maximum limit of " . self::MAX_DIMENSION . "px.");
         }
 
-        // 3. Create GD resource safely
+        // 3. Create GD resource safely (or fallback to original storage if GD is absent)
+        if (!extension_loaded('gd')) {
+            \Illuminate\Support\Facades\Log::warning('GD extension is not loaded. Storing original image without optimization.');
+            $uniqueBase = Str::random(40);
+            $safeOrigExt = strtolower($originalExt) ?: (self::ALLOWED_MIMES[$mime] ?? 'jpg');
+            $storedFilename = "{$uniqueBase}_orig.{$safeOrigExt}";
+            $rawContent = file_get_contents($sourcePath);
+            self::saveToStorage($subfolder, $storedFilename, $rawContent);
+            return [
+                'filename' => $storedFilename,
+                'base'     => $uniqueBase,
+                'fallback' => $storedFilename,
+                'variants' => ['orig' => $storedFilename, 'fallback' => $storedFilename],
+                'width'    => $origW,
+                'height'   => $origH,
+                'filesize' => strlen($rawContent),
+            ];
+        }
+
         $sourceGd = self::createGdResource($sourcePath, $mime);
         if (!$sourceGd) {
             throw new \InvalidArgumentException('Could not create image resource from file.');
@@ -122,6 +140,11 @@ class MediaPipeline
 
         $variants = [];
         $subfolder = trim($subfolder, '/\\');
+        $supportsWebp = function_exists('imagewebp');
+        $supportsAvif = function_exists('imageavif');
+
+        $mainFilename = null;
+        $storedSize = 0;
 
         try {
             // Save original master file
@@ -130,14 +153,36 @@ class MediaPipeline
             self::saveToStorage($subfolder, $origFilename, file_get_contents($sourcePath));
             $variants['orig'] = $origFilename;
 
-            // Generate main WebP (display resolution)
-            $mainWebpFilename = "{$uniqueBase}.webp";
-            $webpData = self::gdToBlob($displayGd, 'webp', self::WEBP_QUALITY);
-            self::saveToStorage($subfolder, $mainWebpFilename, $webpData);
-            $variants['webp_main'] = $mainWebpFilename;
+            // Generate universal fallback (JPEG or PNG if transparent)
+            if ($hasAlpha) {
+                $fallbackFilename = "{$uniqueBase}.png";
+                $fallbackData = self::gdToBlob($displayGd, 'png');
+                self::saveToStorage($subfolder, $fallbackFilename, $fallbackData);
+            } else {
+                $fallbackFilename = "{$uniqueBase}.jpg";
+                $fallbackData = self::gdToBlob($displayGd, 'jpeg', self::JPEG_QUALITY);
+                self::saveToStorage($subfolder, $fallbackFilename, $fallbackData);
+            }
+            $variants['fallback'] = $fallbackFilename;
+            $mainFilename = $fallbackFilename;
+            $storedSize = strlen($fallbackData);
+
+            // Generate main WebP (display resolution) if supported
+            if ($supportsWebp) {
+                $mainWebpFilename = "{$uniqueBase}.webp";
+                $webpData = self::gdToBlob($displayGd, 'webp', self::WEBP_QUALITY);
+                if ($webpData !== null) {
+                    self::saveToStorage($subfolder, $mainWebpFilename, $webpData);
+                    $variants['webp_main'] = $mainWebpFilename;
+                    $mainFilename = $mainWebpFilename;
+                    $storedSize = strlen($webpData);
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::info('WebP not supported by hosting GD. Falling back to JPEG/PNG.');
+            }
 
             // Generate AVIF if supported
-            if (function_exists('imageavif')) {
+            if ($supportsAvif) {
                 $mainAvifFilename = "{$uniqueBase}.avif";
                 $avifData = self::gdToBlob($displayGd, 'avif', self::AVIF_QUALITY);
                 if ($avifData !== null) {
@@ -146,31 +191,26 @@ class MediaPipeline
                 }
             }
 
-            // Generate universal fallback (JPEG or PNG if transparent)
-            if ($hasAlpha) {
-                $fallbackFilename = "{$uniqueBase}.png";
-                $pngData = self::gdToBlob($displayGd, 'png');
-                self::saveToStorage($subfolder, $fallbackFilename, $pngData);
-            } else {
-                $fallbackFilename = "{$uniqueBase}.jpg";
-                $jpgData = self::gdToBlob($displayGd, 'jpeg', self::JPEG_QUALITY);
-                self::saveToStorage($subfolder, $fallbackFilename, $jpgData);
-            }
-            $variants['fallback'] = $fallbackFilename;
-
             // Generate responsive downscaled WebP variants (sm: 360px, md: 720px, lg: 1280px)
-            foreach (self::SIZES as $sizeKey => $maxDim) {
-                if ($origW > $maxDim || $origH > $maxDim) {
-                    [$varW, $varH] = self::calculateTargetDimensions($origW, $origH, $maxDim, $maxDim);
-                    $varGd = self::resizeImage($sourceGd, $origW, $origH, $varW, $varH);
-                    $varWebpName = "{$uniqueBase}_{$sizeKey}.webp";
-                    $varData = self::gdToBlob($varGd, 'webp', self::WEBP_QUALITY);
-                    self::saveToStorage($subfolder, $varWebpName, $varData);
-                    $variants[$sizeKey] = $varWebpName;
-                    imagedestroy($varGd);
-                } else {
-                    // Small enough already; use main display webp as that variant
-                    $variants[$sizeKey] = $mainWebpFilename;
+            if ($supportsWebp && isset($mainWebpFilename)) {
+                foreach (self::SIZES as $sizeKey => $maxDim) {
+                    if ($origW > $maxDim || $origH > $maxDim) {
+                        [$varW, $varH] = self::calculateTargetDimensions($origW, $origH, $maxDim, $maxDim);
+                        $varGd = self::resizeImage($sourceGd, $origW, $origH, $varW, $varH);
+                        $varWebpName = "{$uniqueBase}_{$sizeKey}.webp";
+                        $varData = self::gdToBlob($varGd, 'webp', self::WEBP_QUALITY);
+                        self::saveToStorage($subfolder, $varWebpName, $varData);
+                        $variants[$sizeKey] = $varWebpName;
+                        imagedestroy($varGd);
+                    } else {
+                        // Small enough already; use main display webp as that variant
+                        $variants[$sizeKey] = $mainWebpFilename;
+                    }
+                }
+            } else {
+                // When WebP is unsupported, populate responsive keys with fallback filename
+                foreach (self::SIZES as $sizeKey => $maxDim) {
+                    $variants[$sizeKey] = $fallbackFilename;
                 }
             }
 
@@ -183,10 +223,8 @@ class MediaPipeline
             }
         }
 
-        $storedSize = strlen($webpData);
-
         return [
-            'filename' => $mainWebpFilename,
+            'filename' => $mainFilename,
             'base'     => $uniqueBase,
             'fallback' => $fallbackFilename,
             'variants' => $variants,
@@ -201,17 +239,25 @@ class MediaPipeline
      */
     protected static function saveToStorage(string $subfolder, string $filename, string $data): void
     {
-        $disk = Storage::disk('public');
-        $disk->put("{$subfolder}/{$filename}", $data);
+        try {
+            $disk = Storage::disk('public');
+            $disk->put("{$subfolder}/{$filename}", $data);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Storage disk write note: {$e->getMessage()}");
+        }
 
         // Ensure file exists in public/storage if directory is not a symlink
-        $pubDir = public_path("storage/{$subfolder}");
-        if (!is_dir($pubDir)) {
-            @mkdir($pubDir, 0755, true);
-        }
-        $pubPath = "{$pubDir}/{$filename}";
-        if (!file_exists($pubPath) || filesize($pubPath) !== strlen($data)) {
-            @file_put_contents($pubPath, $data);
+        try {
+            $pubDir = public_path("storage/{$subfolder}");
+            if (!is_dir($pubDir)) {
+                @mkdir($pubDir, 0755, true);
+            }
+            $pubPath = "{$pubDir}/{$filename}";
+            if (!file_exists($pubPath) || filesize($pubPath) !== strlen($data)) {
+                @file_put_contents($pubPath, $data);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Direct public/storage copy note: {$e->getMessage()}");
         }
     }
 
@@ -271,12 +317,13 @@ class MediaPipeline
 
         $baseUrl = asset("storage/{$subfolder}");
         $diskPath = public_path("storage/{$subfolder}");
+        $storagePath = storage_path("app/public/{$subfolder}");
 
-        // Check if WebP variants exist
-        $smExists = file_exists("{$diskPath}/{$cleanBase}_sm.webp");
-        $mdExists = file_exists("{$diskPath}/{$cleanBase}_md.webp");
-        $lgExists = file_exists("{$diskPath}/{$cleanBase}_lg.webp");
-        $mainWebpExists = file_exists("{$diskPath}/{$cleanBase}.webp");
+        // Check if WebP variants exist (check public/storage first, fallback to storage/app/public)
+        $smExists = file_exists("{$diskPath}/{$cleanBase}_sm.webp") || file_exists("{$storagePath}/{$cleanBase}_sm.webp");
+        $mdExists = file_exists("{$diskPath}/{$cleanBase}_md.webp") || file_exists("{$storagePath}/{$cleanBase}_md.webp");
+        $lgExists = file_exists("{$diskPath}/{$cleanBase}_lg.webp") || file_exists("{$storagePath}/{$cleanBase}_lg.webp");
+        $mainWebpExists = file_exists("{$diskPath}/{$cleanBase}.webp") || file_exists("{$storagePath}/{$cleanBase}.webp");
 
         $srcsetWebp = [];
         if ($smExists) $srcsetWebp[] = "{$baseUrl}/{$cleanBase}_sm.webp 360w";
@@ -287,22 +334,27 @@ class MediaPipeline
         $mainWebpUrl = $mainWebpExists ? "{$baseUrl}/{$cleanBase}.webp" : null;
 
         // Fallback image url
-        $jpgFallback = file_exists("{$diskPath}/{$cleanBase}.jpg") ? "{$baseUrl}/{$cleanBase}.jpg" : null;
-        $pngFallback = file_exists("{$diskPath}/{$cleanBase}.png") ? "{$baseUrl}/{$cleanBase}.png" : null;
-        $origFallback = file_exists("{$diskPath}/{$filename}") ? "{$baseUrl}/{$filename}" : null;
+        $jpgFallback = (file_exists("{$diskPath}/{$cleanBase}.jpg") || file_exists("{$storagePath}/{$cleanBase}.jpg")) ? "{$baseUrl}/{$cleanBase}.jpg" : null;
+        $pngFallback = (file_exists("{$diskPath}/{$cleanBase}.png") || file_exists("{$storagePath}/{$cleanBase}.png")) ? "{$baseUrl}/{$cleanBase}.png" : null;
+        $origFallback = (file_exists("{$diskPath}/{$filename}") || file_exists("{$storagePath}/{$filename}")) ? "{$baseUrl}/{$filename}" : null;
 
         $fallbackUrl = $mainWebpUrl ?: $jpgFallback ?: $pngFallback ?: $origFallback ?: asset('img/desain.png');
 
         // Dimensions detection
         $dims = [800, 600];
-        $probeFile = "{$diskPath}/{$cleanBase}.webp";
-        if (!file_exists($probeFile)) {
-            $probeFile = "{$diskPath}/{$filename}";
-        }
-        if (file_exists($probeFile)) {
-            $sz = @getimagesize($probeFile);
-            if ($sz) {
-                $dims = [$sz[0], $sz[1]];
+        $probeFiles = [
+            "{$diskPath}/{$cleanBase}.webp",
+            "{$storagePath}/{$cleanBase}.webp",
+            "{$diskPath}/{$filename}",
+            "{$storagePath}/{$filename}",
+        ];
+        foreach ($probeFiles as $probeFile) {
+            if (file_exists($probeFile)) {
+                $sz = @getimagesize($probeFile);
+                if ($sz) {
+                    $dims = [$sz[0], $sz[1]];
+                    break;
+                }
             }
         }
 
@@ -423,7 +475,12 @@ class MediaPipeline
         ob_start();
         switch ($format) {
             case 'webp':
-                imagewebp($image, null, $quality);
+                if (function_exists('imagewebp')) {
+                    imagewebp($image, null, $quality);
+                } else {
+                    ob_end_clean();
+                    return null;
+                }
                 break;
             case 'jpeg':
             case 'jpg':
