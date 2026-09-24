@@ -3,62 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\Posttestimoni;
+use App\Services\MediaPipeline;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class PosttestimoniController extends Controller
 {
     public function index(): View
     {
-        //get post
         $posts = Posttestimoni::latest()->get();
 
-        //render view with posts
         return view('posttestimoni', compact('posts'));
     }
 
-    public function create():View
+    public function create(): View
     {
         return view('createtestimoni');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        //variabel from
         $this->validate($request, [
-            'image'     => 'required|image|mimes:jpeg,jpg,png|max:2048',
-        ]);
-        
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/postsimg/', $image->hashName());
-
-        //create post
-        Posttestimoni::create([
-            'image'     => $image->hashName(),
+            'image' => 'required|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
         ]);
 
-        //return redirect index
-        return redirect()->route('posttestimoni.index')->with(['success' => 'Data Berhasil Disimpan!']);
+        try {
+            $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+
+            Posttestimoni::create([
+                'image' => $optimized['filename'],
+            ]);
+
+            return redirect()->route('posttestimoni.index')->with(['success' => 'Data Berhasil Disimpan & Gambar Dioptimasi Otomatis!']);
+        } catch (\Throwable $e) {
+            Log::error('Testimoni image upload optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
     }
 
     public function destroy($id): RedirectResponse
     {
-            //get post id:
-            $post = Posttestimoni::findOrFail($id);
+        $post = Posttestimoni::findOrFail($id);
 
-            //delete img:
-            Storage::delete('public/postsimg/'. $post->image);
-            if (file_exists(public_path('storage/postsimg/' . $post->image))) {
-                @unlink(public_path('storage/postsimg/' . $post->image));
-            }
-            
-            //delete post
-            $post->delete();
+        try {
+            MediaPipeline::deleteVariants($post->image, 'postsimg');
+        } catch (\Throwable $e) {
+            Log::warning('Error deleting testimoni image variants: ' . $e->getMessage());
+        }
 
-            //redirect to index
-            return redirect()->route('posttestimoni.index')->with(['success' => 'Data Delete Successfully']);
+        $post->delete();
+
+        return redirect()->route('posttestimoni.index')->with(['success' => 'Data Delete Successfully']);
     }
 }

@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Postgalery;
+use App\Services\MediaPipeline;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class PostgaleryController extends Controller
 {
-    //
-
     public function index(): View
     {
         $posts = Postgalery::latest()->get();
@@ -20,45 +19,48 @@ class PostgaleryController extends Controller
         return view('postgallery', compact('posts'));
     }
 
-    public function create():View
+    public function create(): View
     {
         return view('creategalery');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        //variabel from
         $this->validate($request, [
-            'image'     => 'required|image|mimes:jpeg,jpg,png|max:4048',
-            'nama'     => 'required',
-            'dimensi'     => 'required',
-            'link'      => 'required',
-        ]);
-        
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/postsimg/', $image->hashName());
-
-        //create post
-        Postgalery::create([
-            'image'     => $image->hashName(),
-            'nama'          => $request->nama,
-            'dimensi'       => $request->dimensi,
-            'link'      => $request->link,
+            'image'   => 'required|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+            'nama'    => 'required|string|max:255',
+            'dimensi' => 'required|string|max:255',
+            'link'    => 'required|string',
         ]);
 
-        return redirect()->route('postsgalery.index')->with(['success' => 'Data Berhasil Disimpan!']);
+        try {
+            // Automatic optimization pipeline
+            $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+
+            Postgalery::create([
+                'image'   => $optimized['filename'],
+                'nama'    => $request->nama,
+                'dimensi' => $request->dimensi,
+                'link'    => $request->link,
+            ]);
+
+            return redirect()->route('postsgalery.index')->with(['success' => 'Data Berhasil Disimpan & Gambar Dioptimasi Otomatis!']);
+        } catch (\Throwable $e) {
+            Log::error('Gallery image upload optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
     }
 
     public function destroy($id): RedirectResponse
     {
         $post = Postgalery::findOrFail($id);
 
-        Storage::delete('public/postsimg/'. $post->image);
-        if (file_exists(public_path('storage/postsimg/' . $post->image))) {
-            @unlink(public_path('storage/postsimg/' . $post->image));
+        try {
+            MediaPipeline::deleteVariants($post->image, 'postsimg');
+        } catch (\Throwable $e) {
+            Log::warning('Error deleting gallery image variants: ' . $e->getMessage());
         }
-            
+
         $post->delete();
 
         return redirect()->route('postsgalery.index')->with(['success' => 'Data Delete Successfully']);

@@ -3,66 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Postinformasi;
+use App\Services\MediaPipeline;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class PostinformasiyController extends Controller
 {
-    //
-
     public function index(): View
     {
-        //get post
         $posts = Postinformasi::latest()->get();
 
-        //render view with posts
         return view('postinformasi', compact('posts'));
     }
 
-    public function create():View
+    public function create(): View
     {
         return view('createinformasi');
     }
 
     public function store(Request $request): RedirectResponse
     {
-        //variabel from
         $this->validate($request, [
-            'image'     => 'required|image|mimes:jpeg,jpg,png|max:2048',
-            'deskripsi'     => 'required',
-        ]);
-        
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/postsimg/', $image->hashName());
-
-        //create post
-        Postinformasi::create([
-            'image'     => $image->hashName(),
-            'deskripsi'     => $request->deskripsi,
+            'image'     => 'required|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+            'deskripsi' => 'required|string',
         ]);
 
-        //return redirect index
-        return redirect()->route('postsinformasi.index')->with(['success' => 'Data Berhasil Disimpan!']);
+        try {
+            $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+
+            Postinformasi::create([
+                'image'     => $optimized['filename'],
+                'deskripsi' => $request->deskripsi,
+            ]);
+
+            return redirect()->route('postsinformasi.index')->with(['success' => 'Data Berhasil Disimpan & Gambar Dioptimasi Otomatis!']);
+        } catch (\Throwable $e) {
+            Log::error('Informasi image upload optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
     }
 
     public function destroy($id): RedirectResponse
     {
-            //get post id:
-            $post = Postinformasi::findOrFail($id);
+        $post = Postinformasi::findOrFail($id);
 
-            //delete img:
-            Storage::delete('public/postsimg/'. $post->image);
-            if (file_exists(public_path('storage/postsimg/' . $post->image))) {
-                @unlink(public_path('storage/postsimg/' . $post->image));
-            }
-            
-            //delete post
-            $post->delete();
+        try {
+            MediaPipeline::deleteVariants($post->image, 'postsimg');
+        } catch (\Throwable $e) {
+            Log::warning('Error deleting informasi image variants: ' . $e->getMessage());
+        }
 
-            //redirect to index
-            return redirect()->route('postsinformasi.index')->with(['success' => 'Data Delete Successfully']);
+        $post->delete();
+
+        return redirect()->route('postsinformasi.index')->with(['success' => 'Data Delete Successfully']);
     }
 }
