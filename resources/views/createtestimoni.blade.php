@@ -128,7 +128,12 @@
                         <label for="fname">FOTO</label>
                     </div>
                     <div class="col-75">
-                        <input type="file" id="fname" name="image">
+                        <input type="file" id="imageInput" name="image" accept="image/jpeg,image/png,image/webp,image/avif">
+                        <div id="imagePreviewWrap" style="display:none; margin-top:10px;">
+                            <img id="imagePreview" src="" alt="Pratinjau Foto" style="max-height: 180px; max-width: 100%; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                            <p id="imageFileInfo" style="font-size: 13px; color: #444; margin-top: 4px;"></p>
+                        </div>
+                        <div id="clientError" class="danger" style="display:none; margin-top:6px;"></div>
                     </div>        
                     @error('image')
                         <div class="danger">
@@ -142,5 +147,49 @@
                 </div>
             </form>
     </div>
+    <script>
+        var currentPreviewUrl = null;
+        var imageInput = document.getElementById('imageInput');
+        var previewWrap = document.getElementById('imagePreviewWrap');
+        var previewImg = document.getElementById('imagePreview');
+        var fileInfo = document.getElementById('imageFileInfo');
+        var clientError = document.getElementById('clientError');
+
+        function cleanupPreview() {
+            if (currentPreviewUrl) {
+                URL.revokeObjectURL(currentPreviewUrl);
+                currentPreviewUrl = null;
+            }
+            if (previewWrap) previewWrap.style.display = 'none';
+            if (clientError) clientError.style.display = 'none';
+        }
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                cleanupPreview();
+                var file = e.target.files[0];
+                if (!file) return;
+
+                if (file.size > 15 * 1024 * 1024) {
+                    clientError.textContent = 'Ukuran file melebihi 15MB (' + (file.size / 1048576).toFixed(1) + ' MB). Harap pilih file yang lebih kecil.';
+                    clientError.style.display = 'block';
+                    imageInput.value = '';
+                    return;
+                }
+
+                currentPreviewUrl = URL.createObjectURL(file);
+                previewImg.src = currentPreviewUrl;
+                fileInfo.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB) — Dioptimasi otomatis saat disimpan.';
+                previewWrap.style.display = 'block';
+            });
+        }
+
+        var form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('reset', function() {
+                cleanupPreview();
+            });
+        }
+    </script>
 </body>
 </html>
