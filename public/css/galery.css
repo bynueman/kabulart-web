@@ -1,0 +1,87 @@
+body {
+    background: url("/img/background2.png");
+    height: 100%;
+}
+
+.danger {
+    color: red;
+    font-size: 20px;
+}
+
+h2 {
+    display: block;
+    margin-top: 60px;
+    width: 150px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid black;
+}
+
+.header {
+    height: 180px;
+    padding: 40px 10px;
+    text-align: left;
+}
+
+.product {
+    background-color: white;
+    margin: 10px;
+    border: 1px solid #333;
+}
+
+.product img {
+    padding: 15px;
+    width: 100%;
+    height: 270px;
+}
+
+.desc {
+    padding: 15px;
+    text-align: center;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.product-list {
+    padding: 0 6px;
+    float: left;
+    width: 20%;
+}
+
+.product h3 {
+    margin-top: 10px 0;
+}
+
+.product button {
+    background-color: rgb(66, 66, 66);
+    border: 0;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    padding: 10px 20px;
+    transition: background-color 0.3 ease;
+}
+
+.product button:hover {
+    background-color: lawngreen;
+}
+
+@media only screen and (max-width: 700px) {
+    .product-list {
+        width: 49.99999%;
+        margin: 6px 0;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .product-list {
+        width: 50%;
+    }
+
+    .danger {
+        color: red;
+        font-size: 20px;
+    }
+}

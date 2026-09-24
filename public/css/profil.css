@@ -1,0 +1,140 @@
+body {
+    background: url("/img/background2.png");
+    height: 100%;
+}
+
+.container {
+    margin: 0;
+}
+
+.header {
+    height: 180px;
+    padding: 40px 10px;
+    text-align: left;
+}
+
+.header h2 {
+    margin-top: 80px;
+    display: block;
+    background-color: white;
+    width: 100px;
+    border: 1px solid black;
+}
+
+.bdy {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin: 20px;
+}
+
+.colum {
+    flex-basis: 20%;
+}
+
+.colum img {
+    padding: 0;
+    margin: 20px;
+    margin-top: 20px;
+    height: 200px;
+    width: 200px;
+    border-radius: 20px;
+}
+
+.text h2 {
+    margin-left: 10px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.text p {
+    padding-left: 10px;
+    text-align: justify;
+    font-size: 20px;
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    margin-right: 50px;
+}
+
+@media screen and (max-width: 600px) {
+    .bdy {
+        display: inline;
+        margin: 0;
+    }
+    .colum {
+        flex-basis: 40%;
+    }
+
+    .colum img {
+        float: left;
+        padding: 0;
+        height: 200px;
+        width: 200px;
+        margin-top: 0;
+        margin-left: 20px;
+    }
+
+    .text p {
+        margin-left: 5px;
+        padding: 0;
+        margin-right: 10px;
+        text-align: justify;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.column2 {
+    margin-top: 40px;
+    margin-left: 20px;
+    float: left;
+    width: 50%;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.column3 {
+    margin-top: 40px;
+    float: left;
+    width: 45%;
+    border-radius: 0%;
+    margin-left: 20px;
+    padding: 10px;
+}
+
+.column3 img {
+    border: 2px solid black;
+    border-radius: 10px;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+@media screen and (max-width: 600px) {
+    .column2 {
+        width: 99%;
+        margin: 5px;
+        padding: 20px;
+        border: 1;
+        border-radius: 5px;
+    }
+
+    .tex {
+        font-size: 20px;
+        text-align: justify;
+    }
+
+    .column3 {
+        width: 100%;
+        padding: 0;
+        display: flex;
+    }
+
+    .column3 img {
+        margin: 20px;
+    }
+}

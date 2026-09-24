@@ -1,0 +1,92 @@
+body {
+    background: url("/img/background2.png");
+    height: 100%;
+}
+
+h2 {
+    margin-top: 80px;
+    display: block;
+    margin-left: 20px;
+    background-color: white;
+    width: 100px;
+    border: 1px solid black;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.fot {
+    width: 100%;
+    display: flex;
+    margin: 10px;
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px;
+    border: 2px solid black;
+    overflow: hidden;
+}
+
+.fot img {
+    padding: 0;
+    width: 200px;
+    height: 200px;
+    padding-right: 0;
+}
+
+h4 {
+    padding: 10px;
+    margin: 5px;
+}
+
+.fot p {
+    margin: 10px 0;
+    width: 85%;
+    margin-left: 30px;
+    margin-right: 20px;
+    padding: 0;
+    padding-left: 0;
+    float: left;
+    text-align: justify;
+    font-size: 20px;
+    font-style: normal;
+    text-decoration: none;
+    font-family: "Times New Roman", Times, serif;
+    word-wrap: break-word; 
+    word-break: break-all;
+    max-width: 115ch;
+}
+
+strong {
+    font-size: 20px;
+}
+
+.danger {
+    color: red;
+    font-size: 20px;
+}
+
+@media screen and (max-width: 600px) {
+    .fot p {
+        text-align: justify;
+        font-size: 14px;
+        margin: 0;
+        margin-left: 10px;
+    }
+}
+
+tr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.ftotbel {
+    flex: 1;
+    margin-right: 10px; /* Ini adalah jarak antara elemen-elemen .ftotbel */
+    text-align: left;
+    float: none; /* Hapus float yang tidak diperlukan */
+}
