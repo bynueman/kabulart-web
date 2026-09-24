@@ -43,6 +43,33 @@ class PosttestimoniController extends Controller
         }
     }
 
+    public function edit($id): View
+    {
+        $post = Posttestimoni::findOrFail($id);
+        return view('edittestimoni', compact('post'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $this->validate($request, [
+            'image' => 'required|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+        ]);
+
+        $post = Posttestimoni::findOrFail($id);
+
+        try {
+            MediaPipeline::deleteVariants($post->image, 'postsimg');
+            $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+            $post->image = $optimized['filename'];
+            $post->save();
+
+            return redirect()->route('posttestimoni.index')->with(['success' => 'Data Berhasil Diperbarui!']);
+        } catch (\Throwable $e) {
+            Log::error('Testimoni image update optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
+    }
+
     public function destroy($id): RedirectResponse
     {
         $post = Posttestimoni::findOrFail($id);

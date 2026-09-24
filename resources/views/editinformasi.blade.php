@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tambah Karya Gallery — Kabul Art Gallery Admin</title>
+  <title>Edit Informasi — Kabul Art Gallery Admin</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
 <body>
 <div class="adm-shell">
 
-  @include('partials.admin-sidebar', ['activeNav' => 'gallery'])
+  @include('partials.admin-sidebar', ['activeNav' => 'informasi'])
   <div class="adm-overlay" id="admOverlay"></div>
 
   <div class="adm-main">
@@ -20,9 +20,9 @@
           <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <div><div class="adm-topbar__title">Gallery</div></div>
+      <div><div class="adm-topbar__title">Informasi</div></div>
       <div class="adm-topbar__actions">
-        <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
+        <a href="{{ route('postsinformasi.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
           Kembali
         </a>
@@ -48,35 +48,48 @@
 
       <div class="adm-page-header">
         <div>
-          <span class="adm-page-header__eyebrow">Manajemen Gallery</span>
-          <h1 class="adm-page-header__title">Tambah Karya Baru</h1>
+          <span class="adm-page-header__eyebrow">Manajemen Berita &amp; Artikel</span>
+          <h1 class="adm-page-header__title">Edit Informasi #{{ $post->id }}</h1>
         </div>
       </div>
 
       <div class="adm-form-card">
-        <form action="{{ route('postsgalery.store') }}" method="POST" enctype="multipart/form-data" id="galleryForm">
+        <form action="{{ route('postsinformasi.update', $post->id) }}" method="POST" enctype="multipart/form-data" id="informasiEditForm">
           @csrf
+          @method('PUT')
 
-          {{-- UPLOAD FOTO --}}
+          {{-- GAMBAR SAAT INI & GANTI GAMBAR --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="imageInput">Foto Karya Seni <span style="color:var(--clr-danger)">*</span></label>
+            <label class="adm-form-label">Gambar Banner Saat Ini</label>
+            @php
+              $picData = \App\Services\MediaPipeline::getPictureData($post->image, 'postsimg');
+            @endphp
+            <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1rem;background:var(--clr-cream);padding:0.75rem 1rem;border-radius:var(--radius-md);border:1px solid var(--clr-border);">
+              <img src="{{ $picData['fallback_url'] }}" alt="Informasi" style="width:72px;height:72px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--clr-border);" onerror="this.onerror=null;this.src='{{ asset('img/desain.png') }}';">
+              <div>
+                <div style="font-weight:600;font-size:0.88rem;color:var(--clr-espresso);">{{ $post->image }}</div>
+                <div style="font-size:0.78rem;color:var(--clr-espresso-lt);">Biarkan form upload di bawah kosong jika tidak ingin mengubah gambar.</div>
+              </div>
+            </div>
+
+            <label class="adm-form-label" for="imageInput">Ganti Gambar Banner (Opsional)</label>
             <div class="adm-upload-zone" id="uploadZone">
-              <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif" required>
+              <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif">
               <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <circle cx="8.5" cy="8.5" r="1.5"/>
                 <polyline points="21 15 16 10 5 21"/>
               </svg>
               <div class="adm-upload-zone__text">
-                <strong>Klik untuk memilih gambar</strong> atau seret file ke sini<br>
-                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP responsif saat disimpan.</small>
+                <strong>Klik untuk memilih gambar pengganti</strong> atau seret file ke sini<br>
+                <small style="color:var(--clr-espresso-lt)">Format didukung: JPG, PNG, WEBP, AVIF (Maks. 15MB). Otomatis dioptimasi ke WebP saat disimpan.</small>
               </div>
             </div>
 
             <div class="adm-form-error" id="previewError" style="display:none;"></div>
 
             <div class="adm-preview" id="previewWrap">
-              <img id="previewImg" class="adm-preview__img" src="" alt="Pratinjau Foto Karya">
+              <img id="previewImg" class="adm-preview__img" src="" alt="Pratinjau Gambar Baru">
               <div class="adm-preview__info">
                 <span class="adm-preview__name" id="previewName"></span>
                 <span id="previewSize"></span>
@@ -88,31 +101,12 @@
             @enderror
           </div>
 
-          {{-- NAMA KARYA --}}
+          {{-- DESKRIPSI INFORMASI --}}
           <div class="adm-form-group">
-            <label class="adm-form-label" for="nama">Nama / Judul Karya <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="nama" id="nama" class="adm-form-input @error('nama') is-invalid @enderror" value="{{ old('nama') }}" placeholder="Contoh: Sang Penari Bali" required>
-            @error('nama')
-              <div class="adm-form-error">{{ $message }}</div>
-            @enderror
-          </div>
-
-          {{-- DIMENSI --}}
-          <div class="adm-form-group">
-            <label class="adm-form-label" for="dimensi">Ukuran / Dimensi <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="dimensi" id="dimensi" class="adm-form-input @error('dimensi') is-invalid @enderror" value="{{ old('dimensi') }}" placeholder="Contoh: 100 x 120 cm" required>
-            <div class="adm-form-hint">Format bebas, misalnya: 120 x 80 cm atau Kanvas 150 x 200 cm</div>
-            @error('dimensi')
-              <div class="adm-form-error">{{ $message }}</div>
-            @enderror
-          </div>
-
-          {{-- LINK PEMBELIAN / DETAIL --}}
-          <div class="adm-form-group">
-            <label class="adm-form-label" for="link">Tautan / Link Karya <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="link" id="link" class="adm-form-input @error('link') is-invalid @enderror" value="{{ old('link') }}" placeholder="Contoh: https://wa.me/628123456789 atau https://tokopedia.com/..." required>
-            <div class="adm-form-hint">Tautan saat pengunjung mengklik tombol 'Beli / Tanya Karya' di halaman koleksi publik.</div>
-            @error('link')
+            <label class="adm-form-label" for="deskripsi">Teks / Deskripsi Informasi <span style="color:var(--clr-danger)">*</span></label>
+            <textarea name="deskripsi" id="deskripsi" class="adm-form-textarea @error('deskripsi') is-invalid @enderror" placeholder="Tuliskan berita, liputan pameran, atau rilis kegiatan seni..." rows="8" required>{{ old('deskripsi', $post->deskripsi) }}</textarea>
+            <div class="adm-form-hint">Dapat memuat informasi kegiatan galeri, pameran seni, workshop, atau pengumuman penting.</div>
+            @error('deskripsi')
               <div class="adm-form-error">{{ $message }}</div>
             @enderror
           </div>
@@ -121,9 +115,9 @@
           <div class="adm-form-actions">
             <button type="submit" class="adm-btn adm-btn--primary">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Simpan &amp; Optimasi Karya
+              Perbarui Informasi
             </button>
-            <a href="{{ route('postsgalery.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
+            <a href="{{ route('postsinformasi.index') }}" class="adm-btn adm-btn--ghost">Batal</a>
           </div>
 
         </form>

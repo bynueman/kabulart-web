@@ -317,7 +317,7 @@ button{font-family:inherit;}
 }
 .adm-thumb{
   width:72px;height:72px;
-  object-fit:cover;
+  object-fit:contain;
   border-radius:var(--radius-sm);
   border:1px solid var(--clr-border);
   background:var(--clr-parchment);

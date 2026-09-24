@@ -51,6 +51,44 @@ class PostgaleryController extends Controller
         }
     }
 
+    public function edit($id): View
+    {
+        $post = Postgalery::findOrFail($id);
+        return view('editgalery', compact('post'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $this->validate($request, [
+            'image'   => 'nullable|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+            'nama'    => 'required|string|max:255',
+            'dimensi' => 'required|string|max:255',
+            'link'    => 'required|string',
+        ]);
+
+        $post = Postgalery::findOrFail($id);
+
+        try {
+            if ($request->hasFile('image')) {
+                // Delete old variants
+                MediaPipeline::deleteVariants($post->image, 'postsimg');
+                // Process and save new optimized image
+                $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+                $post->image = $optimized['filename'];
+            }
+
+            $post->nama    = $request->nama;
+            $post->dimensi = $request->dimensi;
+            $post->link    = $request->link;
+            $post->save();
+
+            return redirect()->route('postsgalery.index')->with(['success' => 'Data Berhasil Diperbarui!']);
+        } catch (\Throwable $e) {
+            Log::error('Gallery image update optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
+    }
+
     public function destroy($id): RedirectResponse
     {
         $post = Postgalery::findOrFail($id);

@@ -35,7 +35,7 @@
           {{ session('success') }}
         </div>
       @endif
-      @if($errors->any())
+      @if(isset($errors) && $errors->any())
         <div class="adm-flash adm-flash--error" data-auto-dismiss>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           {{ $errors->first() }}
@@ -81,13 +81,21 @@
                 <p>{{ $post->deskripsi }}</p>
               </td>
               <td class="adm-td-actions" data-label="Aksi">
-                <button
-                  type="button"
-                  class="adm-btn adm-btn--danger adm-btn--sm"
-                  data-delete-url="{{ route('postsinformasi.destroy', $post->id) }}"
-                  id="delete-informasi-{{ $post->id }}"
-                  aria-label="Hapus artikel informasi {{ $post->id }}"
-                >Hapus</button>
+                <div style="display:flex;gap:0.4rem;justify-content:center;align-items:center;">
+                  <a
+                    href="{{ route('postsinformasi.edit', $post->id) }}"
+                    class="adm-btn adm-btn--ghost adm-btn--sm"
+                    id="edit-informasi-{{ $post->id }}"
+                    aria-label="Edit informasi {{ $post->id }}"
+                  >Edit</a>
+                  <button
+                    type="button"
+                    class="adm-btn adm-btn--danger adm-btn--sm"
+                    data-delete-url="{{ route('postsinformasi.destroy', $post->id) }}"
+                    id="delete-informasi-{{ $post->id }}"
+                    aria-label="Hapus artikel informasi {{ $post->id }}"
+                  >Hapus</button>
+                </div>
               </td>
             </tr>
             @empty

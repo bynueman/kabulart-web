@@ -45,6 +45,38 @@ class PostinformasiyController extends Controller
         }
     }
 
+    public function edit($id): View
+    {
+        $post = Postinformasi::findOrFail($id);
+        return view('editinformasi', compact('post'));
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $this->validate($request, [
+            'image'     => 'nullable|file|mimes:jpeg,jpg,png,webp,avif|max:15360',
+            'deskripsi' => 'required|string',
+        ]);
+
+        $post = Postinformasi::findOrFail($id);
+
+        try {
+            if ($request->hasFile('image')) {
+                MediaPipeline::deleteVariants($post->image, 'postsimg');
+                $optimized = MediaPipeline::processUpload($request->file('image'), 'postsimg');
+                $post->image = $optimized['filename'];
+            }
+
+            $post->deskripsi = $request->deskripsi;
+            $post->save();
+
+            return redirect()->route('postsinformasi.index')->with(['success' => 'Data Berhasil Diperbarui!']);
+        } catch (\Throwable $e) {
+            Log::error('Informasi image update optimization failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->withInput()->withErrors(['image' => 'Gagal memproses gambar: ' . $e->getMessage()]);
+        }
+    }
+
     public function destroy($id): RedirectResponse
     {
         $post = Postinformasi::findOrFail($id);
