@@ -73,40 +73,46 @@
 
         <div class="kg-maestro">
           <div class="kg-maestro__bio">
-            <strong>Autobiografi The Maestro <br>
-              Wiji Hartono / Kabul
-            </strong>
-            <p>WH. Kabul he`s born Januari 25, 1950 in Yogyakarta, he has made the classic,
-              modern, and traditional batik painting by his own characteristic, his styles
-              combination by naturak and chemical.</p>
-            <p>These are the exhibitions he has ever made :</p>
+            <h3 class="kg-maestro__name">Wiji Hartono / Kabul</h3>
+            <span class="kg-maestro__subtitle">Maestro Batik Lukis Yogyakarta</span>
+            <p>WH. Kabul lahir pada 25 Januari 1950 di Yogyakarta. Beliau telah menghasilkan karya seni batik lukis bercorak klasik, modern, dan tradisional dengan karakteristik unik tersendiri melalui perpaduan pewarna alami dan sintetis berkualitas tinggi.</p>
+            <p style="font-style:italic;color:var(--clr-espresso-lt);font-size:0.92rem;line-height:1.7;">
+              WH. Kabul was born on January 25, 1950 in Yogyakarta. He creates classic, modern, and traditional batik paintings with a distinctive signature style combining natural and modern pigments.
+            </p>
+            <h4 class="kg-maestro__exhib-title">Rekam Jejak Pameran / Notable Exhibitions:</h4>
             <ul>
-              <li>Exhibitioned by all of student art academy in Paris, France, September 1975</li>
-              <li>Jained the exhibition in Frankfrut Germany, July 1986.</li>
-              <li>August 2, 1986, Exhibitioned Academy of Paint Art at Bremen</li>
-              <li>August 15, 1986, Exhibitioned Javanis Batik Art at Gallery of Roa Siahca Bremen.</li>
-              <li>Used to have exhibition in Madrid Spain on August 1989.</li>
-              <li>July 18, 1990 Company Stocholm, Sweden.</li>
-              <li>August 5, 1990 Exhibition Batik Art Asiane at Vinland.</li>
-              <li>Joined the exhibition with The Viking Line Sweden during August to September 1991.</li>
-              <li>February 10, 1992, Yogyakarta Batik Art Exhibition at Bentara Budaya Yogya Indonesia.</li>
-              <li>May 4, 1992, Exhibition Batik Art Melbourne Australia</li>
-              <li>July 1, 1992, Java Bali Art Exhibition at Nusa Dua Beach Hotel Bali Indonesia.</li>
-              <li>The Champion of the Batik Festival in Jakarta, September 1992</li>
-              <li>December 16, 1992 SANTANDER ESPANA</li>
-              <li>The Best Creation on the Asia Batik Festival in Srilanka, February 1993.</li>
-              <li>July 1, 1995, Exhibitioned Java Bali Batik Art at Indonesia</li>
+              <li>Exhibited by all of student art academy in Paris, France &mdash; September 1975</li>
+              <li>Joined the exhibition in Frankfurt, Germany &mdash; July 1986</li>
+              <li>Exhibited at Academy of Paint Art, Bremen &mdash; August 2, 1986</li>
+              <li>Exhibited Javanese Batik Art at Gallery of Roa Siahca, Bremen &mdash; August 15, 1986</li>
+              <li>Exhibition in Madrid, Spain &mdash; August 1989</li>
+              <li>Exhibition at Company Stockholm, Sweden &mdash; July 18, 1990</li>
+              <li>Exhibition Batik Art Asiana at Finland &mdash; August 5, 1990</li>
+              <li>Joined the exhibition with The Viking Line, Sweden &mdash; August to September 1991</li>
+              <li>Yogyakarta Batik Art Exhibition at Bentara Budaya Yogyakarta, Indonesia &mdash; February 10, 1992</li>
+              <li>Exhibition Batik Art, Melbourne, Australia &mdash; May 4, 1992</li>
+              <li>Java Bali Art Exhibition at Nusa Dua Beach Hotel, Bali, Indonesia &mdash; July 1, 1992</li>
+              <li>The Champion of the Batik Festival in Jakarta &mdash; September 1992</li>
+              <li>Exhibition Santander, Espa&ntilde;a &mdash; December 16, 1992</li>
+              <li>The Best Creation on the Asia Batik Festival in Sri Lanka &mdash; February 1993</li>
+              <li>Exhibited Java Bali Batik Art, Indonesia &mdash; July 1, 1995</li>
             </ul>
           </div>
           <div class="kg-maestro__photos">
-            <picture>
-              <source type="image/webp" srcset="img/caption.webp">
-              <img src="img/caption.jpg" alt="profile img" width="400" height="548" loading="lazy" decoding="async">
-            </picture>
-            <picture>
-              <source type="image/webp" srcset="img/profil1.webp">
-              <img src="img/profil1.jpeg" alt="profile img" width="400" height="302" loading="lazy" decoding="async">
-            </picture>
+            <figure class="kg-maestro__photo-item">
+              <picture>
+                <source type="image/webp" srcset="img/caption.webp">
+                <img src="img/caption.jpg" alt="WH. Kabul sedang melukis batik" width="400" height="548" loading="lazy" decoding="async">
+              </picture>
+              <figcaption>WH. Kabul sedang melukis batik</figcaption>
+            </figure>
+            <figure class="kg-maestro__photo-item">
+              <picture>
+                <source type="image/webp" srcset="img/profil1.webp">
+                <img src="img/profil1.jpeg" alt="Dokumentasi pameran seni di media Spanyol" width="400" height="302" loading="lazy" decoding="async">
+              </picture>
+              <figcaption>Dokumentasi pameran seni di Spanyol</figcaption>
+            </figure>
           </div>
         </div>
 
