@@ -21,3 +21,10 @@ yarn-error.log
 *.sqlite-journal
 *.zip
 /scratch/
+
+# Ignore CMS-uploaded images on server (prevents uncommitted changes blocking cPanel deploy)
+/storage/app/public/postsimg/*.jpg
+/storage/app/public/postsimg/*.jpeg
+/storage/app/public/postsimg/*.png
+/storage/app/public/postsimg/*.avif
+/storage/app/public/postsimg/thumbnails/
