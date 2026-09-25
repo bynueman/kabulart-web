@@ -118,12 +118,12 @@ class PostinformasiyController extends Controller
                 $newId = trim($request->input('deskripsi_id', ''));
                 $newEn = trim($request->input('deskripsi_en', ''));
 
-                $idChanged = ($newId !== (string)$post->deskripsi_id);
-                $enChanged = ($newEn !== (string)$post->deskripsi_en);
+                $idChanged = ($newId !== (string)($post->getRawOriginal('deskripsi_id') ?? ''));
+                $enChanged = ($newEn !== (string)($post->getRawOriginal('deskripsi_en') ?? ''));
 
                 $post->deskripsi_id = $newId ?: null;
                 $post->deskripsi_en = $newEn ?: null;
-                $post->deskripsi    = $newId ?: ($newEn ?: $post->deskripsi);
+                $post->deskripsi    = $newId ?: ($newEn ?: $post->getRawOriginal('deskripsi'));
 
                 if ($idChanged || $enChanged) {
                     $post->translation_manual = true;

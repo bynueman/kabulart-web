@@ -133,12 +133,12 @@ class PostgaleryController extends Controller
                 $newId = trim($request->input('nama_id', ''));
                 $newEn = trim($request->input('nama_en', ''));
 
-                $idChanged = ($newId !== (string)$post->nama_id);
-                $enChanged = ($newEn !== (string)$post->nama_en);
+                $idChanged = ($newId !== (string)($post->getRawOriginal('nama_id') ?? ''));
+                $enChanged = ($newEn !== (string)($post->getRawOriginal('nama_en') ?? ''));
 
                 $post->nama_id = $newId ?: null;
                 $post->nama_en = $newEn ?: null;
-                $post->nama    = $newId ?: ($newEn ?: $post->nama);
+                $post->nama    = $newId ?: ($newEn ?: $post->getRawOriginal('nama'));
 
                 if ($idChanged || $enChanged) {
                     $post->translation_manual = true;

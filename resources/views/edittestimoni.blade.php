@@ -57,9 +57,9 @@
               </div>
             </div>
 
-            <label class="adm-form-label" for="imageInput">{{ __('admin.testimoni_replace') }} <span style="color:var(--clr-danger)">*</span></label>
+            <label class="adm-form-label" for="imageInput">{{ __('admin.testimoni_replace') }}</label>
             <div class="adm-upload-zone" id="uploadZone">
-              <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif" required>
+              <input type="file" name="image" id="imageInput" accept="image/jpeg,image/png,image/webp,image/avif">
               <svg class="adm-upload-zone__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                 <circle cx="8.5" cy="8.5" r="1.5"/>

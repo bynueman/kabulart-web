@@ -117,7 +117,7 @@
                   name="nama_id"
                   id="nama_id"
                   class="adm-form-input @error('nama_id') is-invalid @enderror"
-                  value="{{ old('nama_id', $post->nama_id ?: $post->nama) }}"
+                  value="{{ old('nama_id', $post->getRawOriginal('nama_id') ?: $post->getRawOriginal('nama')) }}"
                   required
                 >
                 @error('nama_id')
@@ -131,7 +131,7 @@
                   name="nama_en"
                   id="nama_en"
                   class="adm-form-input @error('nama_en') is-invalid @enderror"
-                  value="{{ old('nama_en', $post->nama_en ?: $post->nama) }}"
+                  value="{{ old('nama_en', $post->getRawOriginal('nama_en') ?: $post->getRawOriginal('nama')) }}"
                   required
                 >
                 @error('nama_en')
@@ -146,11 +146,11 @@
             <div class="adm-bilingual-grid">
               <div>
                 <label class="adm-form-label" for="dimensi_id">{{ __('admin.dim_label') }} (ID) <span style="color:var(--clr-danger)">*</span></label>
-                <input type="text" name="dimensi_id" id="dimensi_id" class="adm-form-input @error('dimensi_id') is-invalid @enderror" value="{{ old('dimensi_id', $post->dimensi_id ?: $post->dimensi) }}" required>
+                <input type="text" name="dimensi_id" id="dimensi_id" class="adm-form-input @error('dimensi_id') is-invalid @enderror" value="{{ old('dimensi_id', $post->getRawOriginal('dimensi_id') ?: $post->getRawOriginal('dimensi')) }}" required>
               </div>
               <div>
                 <label class="adm-form-label" for="dimensi_en">{{ __('admin.dim_label') }} (EN)</label>
-                <input type="text" name="dimensi_en" id="dimensi_en" class="adm-form-input @error('dimensi_en') is-invalid @enderror" value="{{ old('dimensi_en', $post->dimensi_en ?: $post->dimensi) }}">
+                <input type="text" name="dimensi_en" id="dimensi_en" class="adm-form-input @error('dimensi_en') is-invalid @enderror" value="{{ old('dimensi_en', $post->getRawOriginal('dimensi_en') ?: $post->getRawOriginal('dimensi')) }}">
               </div>
             </div>
             <div class="adm-form-hint">{{ __('admin.dim_hint') }}</div>
@@ -162,7 +162,7 @@
           {{-- LINK PEMBELIAN / DETAIL --}}
           <div class="adm-form-group">
             <label class="adm-form-label" for="link">{{ __('admin.link_label') }} <span style="color:var(--clr-danger)">*</span></label>
-            <input type="text" name="link" id="link" class="adm-form-input @error('link') is-invalid @enderror" value="{{ old('link', $post->link) }}" placeholder="Contoh: https://wa.me/628123456789 atau https://tokopedia.com/..." required>
+            <input type="text" name="link" id="link" class="adm-form-input @error('link') is-invalid @enderror" value="{{ old('link', $post->getRawOriginal('link')) }}" placeholder="Contoh: https://wa.me/628123456789 atau https://tokopedia.com/..." required>
             <div class="adm-form-hint">{{ __('admin.link_hint') }}</div>
             @if(!empty($post->link))
               <div style="margin-top:0.35rem;">

@@ -118,7 +118,7 @@
                   class="adm-form-textarea @error('deskripsi_id') is-invalid @enderror"
                   rows="8"
                   required
-                >{{ old('deskripsi_id', $post->deskripsi_id ?: $post->deskripsi) }}</textarea>
+                >{{ old('deskripsi_id', $post->getRawOriginal('deskripsi_id') ?: $post->getRawOriginal('deskripsi')) }}</textarea>
                 @error('deskripsi_id')
                   <div class="adm-form-error">{{ $message }}</div>
                 @enderror
@@ -131,7 +131,7 @@
                   class="adm-form-textarea @error('deskripsi_en') is-invalid @enderror"
                   rows="8"
                   required
-                >{{ old('deskripsi_en', $post->deskripsi_en ?: $post->deskripsi) }}</textarea>
+                >{{ old('deskripsi_en', $post->getRawOriginal('deskripsi_en') ?: $post->getRawOriginal('deskripsi')) }}</textarea>
                 @error('deskripsi_en')
                   <div class="adm-form-error">{{ $message }}</div>
                 @enderror
